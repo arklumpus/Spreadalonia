@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo", "Demo\Demo.csproj", "{090CB54D-F8AF-46CA-A8EB-1156C563ADE8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spreadalonia", "Spreadalonia\Spreadalonia.csproj", "{C771E359-375E-4C3E-9B93-9D066E25DEAB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{090CB54D-F8AF-46CA-A8EB-1156C563ADE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{090CB54D-F8AF-46CA-A8EB-1156C563ADE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{090CB54D-F8AF-46CA-A8EB-1156C563ADE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{090CB54D-F8AF-46CA-A8EB-1156C563ADE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C771E359-375E-4C3E-9B93-9D066E25DEAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C771E359-375E-4C3E-9B93-9D066E25DEAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C771E359-375E-4C3E-9B93-9D066E25DEAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C771E359-375E-4C3E-9B93-9D066E25DEAB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {823C780B-7958-4DFD-A253-65730880F6C2}
+	EndGlobalSection
+EndGlobal

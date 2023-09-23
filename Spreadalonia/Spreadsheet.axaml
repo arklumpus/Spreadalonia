@@ -1,0 +1,220 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:local="using:Spreadalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Spreadalonia.Spreadsheet">
+	<UserControl.ContextMenu>
+		<ContextMenu Cursor="Arrow" Name="TableContextMenu">
+			<ContextMenu.Styles>
+				<Style Selector="MenuItem[IsEnabled=False] Canvas">
+					<Setter Property="Opacity" Value="0.5"/>
+				</Style>
+			</ContextMenu.Styles>
+			<ContextMenu.Items>
+				<MenuItem Name="CutMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="CutIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Cut</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="CopyMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="CopyIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Copy</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="PasteMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="PasteIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Paste</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="PasteSkipBlanksMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Paste (skip blanks)</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem IsEnabled="False"><MenuItem.Header><Canvas Height="1" Background="#919191"/></MenuItem.Header></MenuItem>
+				<MenuItem Name="InsertColMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="InsertColIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Insert columns</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="InsertRowMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="InsertRowIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Insert rows</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="DeleteColMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="DeleteColIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Delete columns</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="DeleteRowMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="DeleteRowIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Delete rows</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="ClearMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="ClearContentsIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Clear contents</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="ResetFormatMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="ClearFormatIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Reset format</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem IsEnabled="False" Name="LastSeparator"><MenuItem.Header><Canvas Height="1" Background="#919191"/></MenuItem.Header></MenuItem>
+				<MenuItem Name="AutoWidthMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="AutoWidthIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>AutoFit width</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="ResetWidthMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="ResetWidthIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Reset width</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="AutoHeightMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="AutoHeightIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>AutoFit height</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+				<MenuItem Name="ResetHeightMenuItem">
+					<MenuItem.Header>
+						<StackPanel Orientation="Horizontal">
+							<Canvas Width="16" Height="16" Name="ResetHeightIcon" Margin="0,0,10,0">
+							</Canvas>
+							<TextBlock>Reset height</TextBlock>
+						</StackPanel>
+					</MenuItem.Header>
+				</MenuItem>
+			</ContextMenu.Items>
+		</ContextMenu>
+	</UserControl.ContextMenu>
+	<DockPanel LastChildFill="False">
+		<ScrollBar DockPanel.Dock="Bottom" Orientation="Horizontal" Name="HorizontalScrollBar" Margin="0,0,16,0" AllowAutoHide="False" Maximum="1"></ScrollBar>
+		<ScrollBar DockPanel.Dock="Right" Orientation="Vertical" Name="VerticalScrollBar" AllowAutoHide="False" Maximum="1" Margin="-1,0,0,0"></ScrollBar>
+		<Grid ClipToBounds="True">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="1*"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="1*"/>
+			</Grid.ColumnDefinitions>
+			
+			<local:HorizontalHeader Grid.Column="1" Name="HorizontalHeaderControl" Focusable="True" IsTabStop="False"
+									Container="{Binding $parent[2]}"
+									Selection="{Binding $parent[2].Selection}"
+									Foreground="{Binding $parent[2].HeaderForeground}"
+									HeaderBackground="{Binding $parent[2].HeaderBackground}"
+									GridColor="{Binding $parent[2].GridColor}"
+									FontSize="{Binding $parent[2].HeaderFontSize}"
+									SelectionAccent="{Binding $parent[2].SelectionAccent}"
+									Margin="-1,0,0,0"/>
+			
+			<local:VerticalHeader Grid.Row="1" Name="VerticalHeaderControl" Focusable="True" IsTabStop="False"
+								  Container="{Binding $parent[2]}"
+							      Selection="{Binding $parent[2].Selection}"
+							      Foreground="{Binding $parent[2].HeaderForeground}"
+							      HeaderBackground="{Binding $parent[2].HeaderBackground}"
+							      GridColor="{Binding $parent[2].GridColor}"
+							      FontSize="{Binding $parent[2].HeaderFontSize}"
+								  SelectionAccent="{Binding $parent[2].SelectionAccent}"
+								  Margin="0,-1,0,0"/>
+
+			<local:TopLeftCorner Name="TopLeftCornerControl" Container="{Binding $parent[2]}" Focusable="True" IsTabStop="False"
+								 Selection="{Binding $parent[2].Selection}"
+							     HeaderBackground="{Binding $parent[2].HeaderBackground}"></local:TopLeftCorner>
+
+			<local:Table Grid.Column="1" Grid.Row="1" Name="ContentTable" ClipToBounds="True" Focusable="True" IsTabStop="False"
+						 DefaultRowHeight="{Binding $parent[2].DefaultRowHeight}"
+					     DefaultColumnWidth="{Binding $parent[2].DefaultColumnWidth}"
+						 Foreground="{Binding $parent[2].Foreground}"
+						 FontFamily="{Binding $parent[2].FontFamily}"
+					     FontSize="{Binding $parent[2].FontSize}"
+						 FontStyle="{Binding $parent[2].FontStyle}"
+						 Container="{Binding $parent[2]}"
+						 Selection="{Binding $parent[2].Selection}"
+						 Background="{Binding $parent[2].SpreadsheetBackground}"
+						 GridColor="{Binding $parent[2].GridColor}"
+						 SelectionAccent="{Binding $parent[2].SelectionAccent}"/>
+
+			<local:Overlay Grid.Column="1" Grid.Row="1" Name="IconOverlay" ClipToBounds="True" Focusable="False" IsTabStop="False" IsHitTestVisible="False"
+						   Opacity="0"
+						   Container="{Binding $parent[2]}"
+						   SelectionAccent="{Binding $parent[2].SelectionAccent}"/>
+			
+			<TextBox Name="EditingBox" CornerRadius="0" BorderThickness="0" MinHeight="0" MinWidth="0" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top"
+					  Text="" Padding="0" IsVisible="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
+					 
+					 Background="{Binding $parent[2].SpreadsheetBackground}">
+				<TextBox.Styles>
+					<Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+						<Setter Property="Background" Value="{Binding $parent[5].SpreadsheetBackground}"/>
+						<Setter Property="BorderThickness" Value="0" />
+					</Style>
+				</TextBox.Styles>
+				
+				
+			</TextBox>
+
+			
+		</Grid>
+	</DockPanel>
+
+</UserControl>
