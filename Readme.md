@@ -1,6 +1,6 @@
 # Spreadalonia: a spreadsheet control for Avalonia
 
-<img src="icon.svg" width="256" align="right">
+<img src="icon.svg" width="256" align="right" style="margin-bottom:1.5em">
 
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Version](https://img.shields.io/nuget/v/Spreadalonia)](https://nuget.org/packages/Spreadalonia)
@@ -10,7 +10,7 @@
 The library is released under the [LGPLv3](https://www.gnu.org/licenses/lgpl-3.0.html) licence.
 
 <p align="center">
-    <img src="screenshot.png" style="max-height: 30em">
+    <img src="screenshot.png" style="max-height: 30em; max-width: 80%">
 </p>
 
 ## Getting started
