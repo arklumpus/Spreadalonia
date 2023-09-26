@@ -23,6 +23,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Fare;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -277,12 +278,12 @@ namespace Spreadalonia
         /// <summary>
         /// Defines the <see cref="ColumnSeparator"/> property.
         /// </summary>
-        public static readonly StyledProperty<string> ColumnSeparatorProperty = AvaloniaProperty.Register<Spreadsheet, string>(nameof(ColumnSeparator), "\t");
+        public static readonly StyledProperty<Regex> ColumnSeparatorProperty = AvaloniaProperty.Register<Spreadsheet, Regex>(nameof(ColumnSeparator), new Regex("[\\t ]+", RegexOptions.Compiled));
 
         /// <summary>
         /// The character used to separate columns (e.g., tab or comma).
         /// </summary>
-        public string ColumnSeparator
+        public Regex ColumnSeparator
         {
             get { return GetValue(ColumnSeparatorProperty); }
             set { SetValue(ColumnSeparatorProperty, value); }
@@ -291,12 +292,12 @@ namespace Spreadalonia
         /// <summary>
         /// Defines the <see cref="RowSeparator"/> property.
         /// </summary>
-        public static readonly StyledProperty<string> RowSeparatorProperty = AvaloniaProperty.Register<Spreadsheet, string>(nameof(RowSeparator), "\n");
+        public static readonly StyledProperty<Regex> RowSeparatorProperty = AvaloniaProperty.Register<Spreadsheet, Regex>(nameof(RowSeparator), new Regex("\n", RegexOptions.Compiled));
 
         /// <summary>
         /// The character used to separate rows (e.g., the newline character).
         /// </summary>
-        public string RowSeparator
+        public Regex RowSeparator
         {
             get { return GetValue(RowSeparatorProperty); }
             set { SetValue(RowSeparatorProperty, value); }
@@ -472,10 +473,26 @@ namespace Spreadalonia
                 {
                     Vector newOffset = new Avalonia.Vector(this.FindControl<ScrollBar>("HorizontalScrollBar").Value, this.FindControl<ScrollBar>("VerticalScrollBar").Value);
 
-                    this.FindControl<Table>("ContentTable").Offset = newOffset;
-                    this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Offset = newOffset;
-                    this.FindControl<VerticalHeader>("VerticalHeaderControl").Offset = newOffset;
-                    this.FindControl<Overlay>("IconOverlay").Offset = newOffset;
+                    if (scrollBarXBusy)
+                    {
+                        this.FindControl<Table>("ContentTable").Offset = newOffset;
+                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Offset = newOffset;
+                        this.FindControl<VerticalHeader>("VerticalHeaderControl").Offset = newOffset;
+                        this.FindControl<Overlay>("IconOverlay").Offset = newOffset;
+                    }
+                    else
+                    {
+                        this.FindControl<Table>("ContentTable").PauseTransitions();
+                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").PauseTransitions();
+                        this.FindControl<VerticalHeader>("VerticalHeaderControl").PauseTransitions();
+                        this.FindControl<Table>("ContentTable").Offset = newOffset;
+                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Offset = newOffset;
+                        this.FindControl<VerticalHeader>("VerticalHeaderControl").Offset = newOffset;
+                        this.FindControl<Overlay>("IconOverlay").Offset = newOffset;
+                        this.FindControl<Table>("ContentTable").ResumeTransitions();
+                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").ResumeTransitions();
+                        this.FindControl<VerticalHeader>("VerticalHeaderControl").ResumeTransitions();
+                    }
                 }
             };
 
@@ -485,10 +502,26 @@ namespace Spreadalonia
                 {
                     Vector newOffset = new Avalonia.Vector(this.FindControl<ScrollBar>("HorizontalScrollBar").Value, this.FindControl<ScrollBar>("VerticalScrollBar").Value);
 
-                    this.FindControl<Table>("ContentTable").Offset = newOffset;
-                    this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Offset = newOffset;
-                    this.FindControl<VerticalHeader>("VerticalHeaderControl").Offset = newOffset;
-                    this.FindControl<Overlay>("IconOverlay").Offset = newOffset;
+                    if (scrollBarYBusy)
+                    {
+                        this.FindControl<Table>("ContentTable").Offset = newOffset;
+                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Offset = newOffset;
+                        this.FindControl<VerticalHeader>("VerticalHeaderControl").Offset = newOffset;
+                        this.FindControl<Overlay>("IconOverlay").Offset = newOffset;
+                    }
+                    else
+                    {
+                        this.FindControl<Table>("ContentTable").PauseTransitions();
+                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").PauseTransitions();
+                        this.FindControl<VerticalHeader>("VerticalHeaderControl").PauseTransitions();
+                        this.FindControl<Table>("ContentTable").Offset = newOffset;
+                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Offset = newOffset;
+                        this.FindControl<VerticalHeader>("VerticalHeaderControl").Offset = newOffset;
+                        this.FindControl<Overlay>("IconOverlay").Offset = newOffset;
+                        this.FindControl<Table>("ContentTable").ResumeTransitions();
+                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").ResumeTransitions();
+                        this.FindControl<VerticalHeader>("VerticalHeaderControl").ResumeTransitions();
+                    }
                 }
             };
 
@@ -1167,6 +1200,9 @@ namespace Spreadalonia
                 }
             }
 
+            string colSep = new Xeger(Regex.Unescape(this.ColumnSeparator.ToString()), new Random(20230926)).Generate();
+            string rowSep = new Xeger(Regex.Unescape(this.RowSeparator.ToString()), new Random(20230926)).Generate();
+
             StringBuilder tbr = new StringBuilder();
 
             for (int y = 0; y < lastRow + 1; y++)
@@ -1179,7 +1215,7 @@ namespace Spreadalonia
                         {
                             string cell = outputMatrix[x, y];
 
-                            if (string.IsNullOrEmpty(cell) || (!cell.Contains(this.ColumnSeparator) && !cell.Contains(this.RowSeparator)))
+                            if (string.IsNullOrEmpty(cell) || (!this.ColumnSeparator.IsMatch(cell) && !this.RowSeparator.IsMatch(cell)))
                             {
                                 tbr.Append(outputMatrix[x, y]);
                             }
@@ -1192,14 +1228,14 @@ namespace Spreadalonia
 
                             if (x < lastColumn)
                             {
-                                tbr.Append(this.ColumnSeparator);
+                                tbr.Append(colSep);
                             }
                         }
                     }
 
                     if (y < lastRow)
                     {
-                        tbr.Append(this.RowSeparator);
+                        tbr.Append(rowSep);
                     }
                 }
             }
@@ -1431,7 +1467,7 @@ namespace Spreadalonia
         /// <param name="overwriteEmpty">If this is <see langword="true"/>, the contents of cells that are empty in the pasted text is removed; otherwise, empty cells in the text being pasted do not affect the spreadsheet.</param>
         /// <param name="rowSeparator">The row separator character. If this is <see langword="null"/>, the current <see cref="RowSeparator"/> is used.</param>
         /// <param name="columnSeparator">The column separator character. If this is <see langword="null"/>, the current <see cref="ColumnSeparator"/> is used.</param>
-        public void Paste(string text, bool overwriteEmpty, string rowSeparator = null, string columnSeparator = null)
+        public void Paste(string text, bool overwriteEmpty, Regex rowSeparator = null, Regex columnSeparator = null)
         {
             if (this.Selection.Count == 1)
             {
@@ -3266,48 +3302,51 @@ namespace Spreadalonia
         {
             Table table = this.FindControl<Table>("ContentTable");
 
+            string colSep = new Xeger(Regex.Unescape(this.ColumnSeparator.ToString()), new Random(20230926)).Generate();
+            string rowSep = new Xeger(Regex.Unescape(this.RowSeparator.ToString()), new Random(20230926)).Generate();
+
             StringBuilder sb = new StringBuilder();
 
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Colour"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Family"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Size"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Style"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Weight"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Column Width"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Row Height"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Margin"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Horizontal Alignment"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Vertical Alignment"));
-            sb.Append(this.RowSeparator);
+            sb.Append(rowSep);
 
             sb.Append("DEFAULT");
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote(table.Foreground));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote(table.FontFamily.Name));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote(table.FontSize.ToString(System.Globalization.CultureInfo.InvariantCulture)));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote(table.FontStyle));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote(table.FontWeight));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote(table.DefaultColumnWidth.ToString(System.Globalization.CultureInfo.InvariantCulture)));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote(table.DefaultRowHeight.ToString(System.Globalization.CultureInfo.InvariantCulture)));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote(table.DefaultMargin));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
 
             switch (table.DefaultTextAlignment)
             {
@@ -3322,7 +3361,7 @@ namespace Spreadalonia
                     break;
             }
 
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
 
             switch (table.DefaultVerticalAlignment)
             {
@@ -3337,19 +3376,19 @@ namespace Spreadalonia
                     sb.Append(StringifyAndQuote("v"));
                     break;
             }
-            sb.Append(this.RowSeparator);
+            sb.Append(rowSep);
 
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Colour"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Row Height"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Family"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Style"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Weight"));
-            sb.Append(this.RowSeparator);
+            sb.Append(rowSep);
 
             HashSet<int> allRows = new HashSet<int>(table.RowForeground.Keys.Concat(table.RowHeights.Keys).Concat(table.RowTypefaces.Keys));
 
@@ -3357,50 +3396,50 @@ namespace Spreadalonia
             {
                 sb.Append(StringifyAndQuote("Row " + (i + 1).ToString()));
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.RowForeground.TryGetValue(i, out IBrush rowForeground))
                 {
                     sb.Append(StringifyAndQuote(rowForeground));
                 }
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.RowHeights.TryGetValue(i, out double rowHeight))
                 {
                     sb.Append(StringifyAndQuote(rowHeight.ToString(System.Globalization.CultureInfo.InvariantCulture)));
                 }
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.RowTypefaces.TryGetValue(i, out Typeface rowFace))
                 {
                     sb.Append(StringifyAndQuote(rowFace.FontFamily.Name));
-                    sb.Append(this.ColumnSeparator);
+                    sb.Append(colSep);
                     sb.Append(StringifyAndQuote(rowFace.Style));
-                    sb.Append(this.ColumnSeparator);
+                    sb.Append(colSep);
                     sb.Append(StringifyAndQuote(rowFace.Weight));
                 }
                 else
                 {
-                    sb.Append(this.ColumnSeparator);
-                    sb.Append(this.ColumnSeparator);
+                    sb.Append(colSep);
+                    sb.Append(colSep);
                 }
 
-                sb.Append(this.RowSeparator);
+                sb.Append(rowSep);
             }
 
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Colour"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Column Width"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Family"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Style"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Weight"));
-            sb.Append(this.RowSeparator);
+            sb.Append(rowSep);
 
             HashSet<int> allColumns = new HashSet<int>(table.ColumnForeground.Keys.Concat(table.ColumnWidths.Keys).Concat(table.ColumnTypefaces.Keys));
 
@@ -3408,54 +3447,54 @@ namespace Spreadalonia
             {
                 sb.Append(StringifyAndQuote("Column " + HorizontalHeader.GetLetter(i)));
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.ColumnForeground.TryGetValue(i, out IBrush columnForeground))
                 {
                     sb.Append(StringifyAndQuote(columnForeground));
                 }
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.ColumnWidths.TryGetValue(i, out double columnWidth))
                 {
                     sb.Append(StringifyAndQuote(columnWidth.ToString(System.Globalization.CultureInfo.InvariantCulture)));
                 }
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.ColumnTypefaces.TryGetValue(i, out Typeface columnFace))
                 {
                     sb.Append(StringifyAndQuote(columnFace.FontFamily.Name));
-                    sb.Append(this.ColumnSeparator);
+                    sb.Append(colSep);
                     sb.Append(StringifyAndQuote(columnFace.Style));
-                    sb.Append(this.ColumnSeparator);
+                    sb.Append(colSep);
                     sb.Append(StringifyAndQuote(columnFace.Weight));
                 }
                 else
                 {
-                    sb.Append(this.ColumnSeparator);
-                    sb.Append(this.ColumnSeparator);
+                    sb.Append(colSep);
+                    sb.Append(colSep);
                 }
 
-                sb.Append(this.RowSeparator);
+                sb.Append(rowSep);
             }
 
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Colour"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Margin"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Family"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Style"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Font Weight"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Horizontal Alignment"));
-            sb.Append(this.ColumnSeparator);
+            sb.Append(colSep);
             sb.Append(StringifyAndQuote("Vertical Alignment"));
-            sb.Append(this.RowSeparator);
+            sb.Append(rowSep);
 
             HashSet<(int, int)> allCells = new HashSet<(int, int)>(table.CellForeground.Keys.Concat(table.CellMargin.Keys).Concat(table.CellTypefaces.Keys).Concat(table.CellTextAlignment.Keys).Concat(table.CellVerticalAlignment.Keys));
 
@@ -3463,37 +3502,37 @@ namespace Spreadalonia
             {
                 sb.Append(StringifyAndQuote("Cell " + HorizontalHeader.GetLetter(pos.x) + (pos.y + 1).ToString()));
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.CellForeground.TryGetValue(pos, out IBrush cellForeground))
                 {
                     sb.Append(StringifyAndQuote(cellForeground));
                 }
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.CellMargin.TryGetValue(pos, out Thickness cellMargin))
                 {
                     sb.Append(StringifyAndQuote(cellMargin.ToString()));
                 }
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.CellTypefaces.TryGetValue(pos, out Typeface cellFace))
                 {
                     sb.Append(StringifyAndQuote(cellFace.FontFamily.Name));
-                    sb.Append(this.ColumnSeparator);
+                    sb.Append(colSep);
                     sb.Append(StringifyAndQuote(cellFace.Style));
-                    sb.Append(this.ColumnSeparator);
+                    sb.Append(colSep);
                     sb.Append(StringifyAndQuote(cellFace.Weight));
                 }
                 else
                 {
-                    sb.Append(this.ColumnSeparator);
-                    sb.Append(this.ColumnSeparator);
+                    sb.Append(colSep);
+                    sb.Append(colSep);
                 }
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.CellTextAlignment.TryGetValue(pos, out TextAlignment cellAlignment))
                 {
@@ -3511,7 +3550,7 @@ namespace Spreadalonia
                     }
                 }
 
-                sb.Append(this.ColumnSeparator);
+                sb.Append(colSep);
 
                 if (table.CellVerticalAlignment.TryGetValue(pos, out VerticalAlignment cellVertAlignment))
                 {
@@ -3530,7 +3569,7 @@ namespace Spreadalonia
                     }
                 }
 
-                sb.Append(this.RowSeparator);
+                sb.Append(rowSep);
             }
 
             return sb.ToString();
@@ -3539,7 +3578,7 @@ namespace Spreadalonia
         private string StringifyAndQuote(object obj)
         {
             string cell = obj.ToString();
-            if (string.IsNullOrEmpty(cell) || (!cell.Contains(this.ColumnSeparator) && !cell.Contains(this.RowSeparator)))
+            if (string.IsNullOrEmpty(cell) || (!this.ColumnSeparator.IsMatch(cell) && !this.RowSeparator.IsMatch(cell)))
             {
                 return cell;
             }
@@ -3558,7 +3597,7 @@ namespace Spreadalonia
         /// <param name="quote">The character(s) used to quote cells that contain separator characters within their value.</param>
         /// <param name="width">When this method returns, this value will contain the maximum width of the splitted text.</param>
         /// <returns>The splitted text, as a jagged array. Each element of the array represents a row. Rows may have different lengths.</returns>
-        public static string[][] SplitData(string text, string rowSeparator, string columnSeparator, string quote, out int width)
+        public static string[][] SplitData(string text, Regex rowSeparator, Regex columnSeparator, string quote, out int width)
         {
             List<string> lines = new List<string>(Split(text, rowSeparator, quote, columnSeparator));
 
@@ -3596,15 +3635,18 @@ namespace Spreadalonia
             return cells;
         }
 
-        private static string[] Split(string text, string separator, string quote, string otherSeparator)
+        private static string[] Split(string text, Regex separator, string quote, Regex otherSeparator)
         {
-            if (separator == "\n")
+            if (separator.ToString() == "\n")
             {
                 text = text.Replace("\r", "");
             }
 
-            string startingQuotePattern = "(?<=[(?:" + Regex.Escape(separator) + ")(?:" + Regex.Escape(otherSeparator) + ")](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?!" + Regex.Escape(quote) + ")";
-            string endingQuotePattern = "(?<=[^(?:" + Regex.Escape(quote) + ")](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?=[(?:" + Regex.Escape(separator) + ")(?:" + Regex.Escape(otherSeparator) + ")])";
+            //string startingQuotePattern = "(?<=[(?:" + separator.ToString() + ")(?:" + otherSeparator.ToString() + ")](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?!" + Regex.Escape(quote) + ")";
+            //string endingQuotePattern = "(?<=[^(?:" + Regex.Escape(quote) + ")](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?=[(?:" + separator.ToString() + ")(?:" + otherSeparator.ToString() + ")])";
+
+            string startingQuotePattern = "(?<=(?:" + separator.ToString() + "|" + otherSeparator.ToString() + ")(?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?!" + Regex.Escape(quote) + ")";
+            string endingQuotePattern = "(?<=[^(?:" + Regex.Escape(quote) + ")](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?=(?:" + separator.ToString() + "|" + otherSeparator.ToString() + "))";
 
             Regex startingQuoteRegex = new Regex(startingQuotePattern, RegexOptions.Compiled);
             Regex endingQuoteRegex = new Regex(endingQuotePattern, RegexOptions.Compiled);
@@ -3639,6 +3681,7 @@ namespace Spreadalonia
 
 
             List<int> separators = new List<int>();
+            List<int> separatorLengths = new List<int>();
 
             int currPos = 0;
 
@@ -3646,16 +3689,24 @@ namespace Spreadalonia
             {
                 if (i % 2 == 0)
                 {
-                    string[] splitSplit = splitQuote[i].Split(new string[] { separator }, StringSplitOptions.None);
+                    MatchCollection matches = separator.Matches(splitQuote[i]);
 
-                    for (int j = 0; j < splitSplit.Length - 1; j++)
+                    for (int j = 0; j < matches.Count; j++)
                     {
-                        currPos += splitSplit[j].Length;
+                        currPos += matches[j].Index - (j == 0 ? 0 : (matches[j - 1].Index + matches[j - 1].Length));
                         separators.Add(currPos);
-                        currPos += separator.Length;
+                        separatorLengths.Add(matches[j].Length);
+                        currPos += matches[j].Length;
                     }
 
-                    currPos += splitSplit[splitSplit.Length - 1].Length + quote.Length;
+                    if (matches.Count > 0)
+                    {
+                        currPos += splitQuote[i].Length - (matches[matches.Count - 1].Index + matches[matches.Count - 1].Length) + quote.Length;
+                    }
+                    else
+                    {
+                        currPos += splitQuote[i].Length + quote.Length;
+                    }
                 }
                 else
                 {
@@ -3670,7 +3721,7 @@ namespace Spreadalonia
             for (int i = 0; i < separators.Count; i++)
             {
                 tbr[i] = text.Substring(currPos, separators[i] - currPos);
-                currPos = separators[i] + separator.Length;
+                currPos = separators[i] + separatorLengths[i];
             }
 
             tbr[tbr.Length - 1] = text.Substring(currPos, text.Length - currPos);
@@ -3958,6 +4009,24 @@ namespace Spreadalonia
             this.FindControl<ScrollBar>("HorizontalScrollBar").Value = 0;
             this.FindControl<ScrollBar>("VerticalScrollBar").Value = 0;
         }
+
+        /// <summary>
+        /// Returns a <see langword="string"/> that matches the current <see cref="ColumnSeparator"/>.
+        /// </summary>
+        /// <returns>A <see langword="string"/> that matches the current <see cref="ColumnSeparator"/>.</returns>
+        public string GetColumnSeparator()
+        {
+            return new Xeger(Regex.Unescape(this.ColumnSeparator.ToString()), new Random(20230926)).Generate();
+        }
+
+        /// <summary>
+        /// Returns a <see langword="string"/> that matches the current <see cref="RowSeparator"/>.
+        /// </summary>
+        /// <returns>A <see langword="string"/> that matches the current <see cref="RowSeparator"/>.</returns>
+        public string GetRowSeparator()
+        {
+            return new Xeger(Regex.Unescape(this.RowSeparator.ToString()), new Random(20230926)).Generate();
+        }
     }
 
     /// <summary>
@@ -3984,7 +4053,7 @@ namespace Spreadalonia
         /// The vertical coordinate of the cell.
         /// </summary>
         public int Top { get; }
-        
+
         internal CellSizeChangedEventArgs(int left, int top, double width, double height) : base()
         {
             this.Left = left;
