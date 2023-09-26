@@ -8,7 +8,7 @@
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<Company>University of Bristol</Company>
 	<Description>A simple spreadsheet control for Avalonia.</Description>
-	<Version>1.0.0</Version>
+	<Version>1.0.1</Version>
 	<PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
 	<PackageProjectUrl>https://github.com/arklumpus/Spreadalonia</PackageProjectUrl>
 	<PackageIcon>icon.png</PackageIcon>
@@ -29,6 +29,7 @@
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="0.10.18" />
 		<PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
+		<PackageReference Include="Fare" Version="2.2.1" />
 		<PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
 	</ItemGroup>
 </Project>
