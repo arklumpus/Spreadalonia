@@ -191,6 +191,7 @@
 						 Container="{Binding $parent[2]}"
 						 Selection="{Binding $parent[2].Selection}"
 						 Background="{Binding $parent[2].SpreadsheetBackground}"
+						 DefaultMargin="{Binding $parent[2].DefaultCellMargin}"
 						 GridColor="{Binding $parent[2].GridColor}"
 						 SelectionAccent="{Binding $parent[2].SelectionAccent}"/>
 

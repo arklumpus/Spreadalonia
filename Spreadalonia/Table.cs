@@ -160,11 +160,17 @@ namespace Spreadalonia
         }
 
 
-        public Thickness DefaultMargin { get; set; } = new Thickness(3);
+        public static readonly StyledProperty<Thickness> DefaultMarginProperty = AvaloniaProperty.Register<Table, Thickness>(nameof(DefaultMargin), new Thickness(3));
+
+        public Thickness DefaultMargin
+        {
+            get { return GetValue(DefaultMarginProperty); }
+            set { SetValue(DefaultMarginProperty, value); }
+        }
 
         static Table()
         {
-            AffectsRender<Table>(OffsetProperty, DefaultColumnWidthProperty, DefaultRowHeightProperty, GridColorProperty, SelectionProperty, ForegroundProperty, BackgroundProperty, FontFamilyProperty, FontSizeProperty, FontStyleProperty, FontWeightProperty, SelectionAccentProperty, IsFocusedProperty);
+            AffectsRender<Table>(OffsetProperty, DefaultColumnWidthProperty, DefaultRowHeightProperty, GridColorProperty, SelectionProperty, ForegroundProperty, BackgroundProperty, FontFamilyProperty, FontSizeProperty, FontStyleProperty, FontWeightProperty, SelectionAccentProperty, IsFocusedProperty, DefaultMarginProperty);
         }
 
         protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)

@@ -150,6 +150,20 @@ namespace Spreadalonia
         }
 
         /// <summary>
+        /// Defines the <see cref="DefaultColumnWidth"/> property.
+        /// </summary>
+        public static readonly StyledProperty<Thickness> DefaultCellMarginProperty = AvaloniaProperty.Register<Spreadsheet, Thickness>(nameof(DefaultCellMargin), new Thickness(3));
+
+        /// <summary>
+        /// The default width for spreadsheet columns.
+        /// </summary>
+        public Thickness DefaultCellMargin
+        {
+            get { return GetValue(DefaultCellMarginProperty); }
+            set { SetValue(DefaultCellMarginProperty, value); }
+        }
+
+        /// <summary>
         /// Defines the <see cref="HeaderFontFamily"/> property.
         /// </summary>
         public static readonly StyledProperty<FontFamily> HeaderFontFamilyProperty = AvaloniaProperty.Register<Spreadsheet, FontFamily>(nameof(HeaderFontFamily), FontFamily.Default);
