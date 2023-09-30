@@ -292,7 +292,7 @@ namespace Spreadalonia
         /// <summary>
         /// Defines the <see cref="ColumnSeparator"/> property.
         /// </summary>
-        public static readonly StyledProperty<Regex> ColumnSeparatorProperty = AvaloniaProperty.Register<Spreadsheet, Regex>(nameof(ColumnSeparator), new Regex("[\\t ]+", RegexOptions.Compiled));
+        public static readonly StyledProperty<Regex> ColumnSeparatorProperty = AvaloniaProperty.Register<Spreadsheet, Regex>(nameof(ColumnSeparator), new Regex("\\t", RegexOptions.Compiled));
 
         /// <summary>
         /// The character used to separate columns (e.g., tab or comma).
