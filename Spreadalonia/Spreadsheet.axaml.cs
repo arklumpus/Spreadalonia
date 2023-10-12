@@ -3657,10 +3657,12 @@ namespace Spreadalonia
             }
 
             string startingQuotePattern = "(?<=(?:" + separator.ToString() + "|" + otherSeparator.ToString() + ")(?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?!" + Regex.Escape(quote) + ")";
-            string endingQuotePattern = "(?<=[^(?:" + Regex.Escape(quote) + ")](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?=(?:" + separator.ToString() + "|" + otherSeparator.ToString() + "|$))";
+            string endingQuotePattern = "(?<=[^" + Regex.Escape(quote) + "](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?=(?:" + separator.ToString() + "|" + otherSeparator.ToString() + "))";
+            string endingQuoteAtEndPattern = "(?<=[^" + Regex.Escape(quote) + "](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?=(?:" + separator.ToString() + "|" + otherSeparator.ToString() + "|$))";
 
             Regex startingQuoteRegex = new Regex(startingQuotePattern, RegexOptions.Compiled);
             Regex endingQuoteRegex = new Regex(endingQuotePattern, RegexOptions.Compiled);
+            Regex endingQuoteAtEndRegex = new Regex(endingQuoteAtEndPattern, RegexOptions.Compiled);
 
             List<string> splitStartingQuote = startingQuoteRegex.Split(text).ToList();
 
@@ -3671,7 +3673,16 @@ namespace Spreadalonia
 
             for (int i = 1; i < splitStartingQuote.Count; i++)
             {
-                Match match = endingQuoteRegex.Match(splitStartingQuote[i]);
+                Match match;
+                
+                if (i < splitStartingQuote.Count - 1)
+                {
+                    match = endingQuoteRegex.Match(splitStartingQuote[i]);
+                }
+                else
+                {
+                    match = endingQuoteAtEndRegex.Match(splitStartingQuote[i]);
+                }
 
                 if (match.Success)
                 {
