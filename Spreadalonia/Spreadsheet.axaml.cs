@@ -3631,7 +3631,7 @@ namespace Spreadalonia
                 width = Math.Max(width, cells[i].Length);
             }
 
-            Regex escapedQuote = new Regex(quote + quote, RegexOptions.Compiled);
+            Regex escapedQuote = new Regex(quote + quote);
 
             for (int i = 0; i < cells.Length; i++)
             {
@@ -3660,9 +3660,9 @@ namespace Spreadalonia
             string endingQuotePattern = "(?<=[^" + Regex.Escape(quote) + "](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?=(?:" + separator.ToString() + "|" + otherSeparator.ToString() + "))";
             string endingQuoteAtEndPattern = "(?<=[^" + Regex.Escape(quote) + "](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?=(?:" + separator.ToString() + "|" + otherSeparator.ToString() + "|$))";
 
-            Regex startingQuoteRegex = new Regex(startingQuotePattern, RegexOptions.Compiled);
-            Regex endingQuoteRegex = new Regex(endingQuotePattern, RegexOptions.Compiled);
-            Regex endingQuoteAtEndRegex = new Regex(endingQuoteAtEndPattern, RegexOptions.Compiled);
+            Regex startingQuoteRegex = new Regex(startingQuotePattern);
+            Regex endingQuoteRegex = new Regex(endingQuotePattern);
+            Regex endingQuoteAtEndRegex = new Regex(endingQuoteAtEndPattern);
 
             List<string> splitStartingQuote = startingQuoteRegex.Split(text).ToList();
 
