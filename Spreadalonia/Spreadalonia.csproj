@@ -8,7 +8,7 @@
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<Company>University of Bristol</Company>
 	<Description>A simple spreadsheet control for Avalonia.</Description>
-	<Version>1.0.3-a3</Version>
+	<Version>1.0.3-a4</Version>
 	<PackageLicenseExpression>LGPL-3.0-only</PackageLicenseExpression>
 	<PackageProjectUrl>https://github.com/arklumpus/Spreadalonia</PackageProjectUrl>
 	<PackageIcon>icon.png</PackageIcon>

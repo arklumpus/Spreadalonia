@@ -3602,6 +3602,19 @@ namespace Spreadalonia
             }
         }
 
+        private static Dictionary<string, Regex> CompiledRegexes = new Dictionary<string, Regex>();
+
+        private static Regex GetRegex(string pattern)
+        {
+            if (!CompiledRegexes.TryGetValue(pattern, out Regex reg))
+            {
+                reg = new Regex(pattern, RegexOptions.Compiled);
+                CompiledRegexes.Add(pattern, reg);
+            }
+
+            return reg;
+        }
+
         /// <summary>
         /// Splits the specified <paramref name="text"/> according to the <paramref name="rowSeparator"/> and the <paramref name="columnSeparator"/>, with the specified <paramref name="quote"/> character.
         /// </summary>
@@ -3631,7 +3644,7 @@ namespace Spreadalonia
                 width = Math.Max(width, cells[i].Length);
             }
 
-            Regex escapedQuote = new Regex(quote + quote);
+            Regex escapedQuote = GetRegex(quote + quote);
 
             for (int i = 0; i < cells.Length; i++)
             {
@@ -3660,9 +3673,9 @@ namespace Spreadalonia
             string endingQuotePattern = "(?<=[^" + Regex.Escape(quote) + "](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?=(?:" + separator.ToString() + "|" + otherSeparator.ToString() + "))";
             string endingQuoteAtEndPattern = "(?<=[^" + Regex.Escape(quote) + "](?:" + Regex.Escape(quote) + Regex.Escape(quote) + ")*)" + Regex.Escape(quote) + "(?=(?:" + separator.ToString() + "|" + otherSeparator.ToString() + "|$))";
 
-            Regex startingQuoteRegex = new Regex(startingQuotePattern);
-            Regex endingQuoteRegex = new Regex(endingQuotePattern);
-            Regex endingQuoteAtEndRegex = new Regex(endingQuoteAtEndPattern);
+            Regex startingQuoteRegex = GetRegex(startingQuotePattern);
+            Regex endingQuoteRegex = GetRegex(endingQuotePattern);
+            Regex endingQuoteAtEndRegex = GetRegex(endingQuoteAtEndPattern);
 
             List<string> splitStartingQuote = startingQuoteRegex.Split(text).ToList();
 
