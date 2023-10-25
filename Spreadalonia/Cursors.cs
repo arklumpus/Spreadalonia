@@ -62,7 +62,7 @@ namespace Spreadalonia
             {
                 return SelectColumnCursor12;
             }
-            else if (dpi < 2)
+            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
                 return SelectColumnCursor16;
             }
@@ -78,7 +78,7 @@ namespace Spreadalonia
             {
                 return SelectRowCursor12;
             }
-            else if (dpi < 2)
+            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
                 return SelectRowCursor16;
             }
@@ -94,7 +94,7 @@ namespace Spreadalonia
             {
                 return ResizeColumnCursor18;
             }
-            else if (dpi < 2)
+            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
                 return ResizeColumnCursor25;
             }
@@ -110,7 +110,7 @@ namespace Spreadalonia
             {
                 return ResizeRowCursor18;
             }
-            else if (dpi < 2)
+            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
                 return ResizeRowCursor25;
             }
@@ -126,7 +126,7 @@ namespace Spreadalonia
             {
                 return CrossCursor15;
             }
-            else if (dpi < 2)
+            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
                 return CrossCursor21;
             }
@@ -142,7 +142,7 @@ namespace Spreadalonia
             {
                 return MoveCursor17;
             }
-            else if (dpi < 2)
+            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
                 return MoveCursor24;
             }
@@ -158,7 +158,7 @@ namespace Spreadalonia
             {
                 return MoveCopyCursor18;
             }
-            else if (dpi < 2)
+            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
                 return MoveCopyCursor26;
             }
@@ -174,7 +174,7 @@ namespace Spreadalonia
             {
                 return FillCursor14;
             }
-            else if (dpi < 2)
+            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
                 return FillCursor21;
             }
