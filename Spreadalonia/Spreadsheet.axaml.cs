@@ -707,8 +707,10 @@ namespace Spreadalonia
             {
                 this.FindControl<MenuItem>("CopyMenuItem").IsEnabled = this.Selection.Count > 0;
                 this.FindControl<MenuItem>("CutMenuItem").IsEnabled = this.Selection.Count > 0;
-                this.FindControl<MenuItem>("PasteMenuItem").IsEnabled = this.Selection.Count == 1 && (await Application.Current.Clipboard.GetFormatsAsync()).Contains("Text");
-                this.FindControl<MenuItem>("PasteSkipBlanksMenuItem").IsEnabled = this.Selection.Count == 1 && (await Application.Current.Clipboard.GetFormatsAsync()).Contains("Text");
+
+                bool clipboardContainsText = await Application.Current.Clipboard.ContainsText();
+                this.FindControl<MenuItem>("PasteMenuItem").IsEnabled = this.Selection.Count == 1 && clipboardContainsText;
+                this.FindControl<MenuItem>("PasteSkipBlanksMenuItem").IsEnabled = this.Selection.Count == 1 && clipboardContainsText;
 
                 this.FindControl<MenuItem>("InsertColMenuItem").IsVisible = this.Selection.Count == 1 && (this.Selection[0].IsColumns(this.FindControl<Table>("ContentTable")) && !this.Selection[0].IsRows(this.FindControl<Table>("ContentTable")));
                 this.FindControl<MenuItem>("DeleteColMenuItem").IsVisible = this.FindControl<MenuItem>("InsertColMenuItem").IsVisible;

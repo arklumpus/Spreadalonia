@@ -24,11 +24,41 @@ using Avalonia.VisualTree;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Avalonia.Input.Platform;
+using System.Threading.Tasks;
 
 namespace Spreadalonia
 {
     internal static class ExtensionMethods
     {
+        public static async Task<bool> ContainsText(this IClipboard clipboard)
+        {
+            string[] formats = await clipboard?.GetFormatsAsync();
+
+            if (formats != null)
+            {
+                foreach (string format in formats)
+                {
+                    switch (format)
+                    {
+                        case "Text":
+                        case "text":
+                        case "public.text":
+                        case "public.plain-text":
+                        case "public.utf8-plain-text":
+                        case "public.utf16-plain-text":
+                        case "public.utf16-external-plain-text":
+                            return true;
+                    }
+                }
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         // Adapted from https://github.com/AvaloniaUI/AvaloniaEdit/blob/master/src/AvaloniaEdit/Utils/ExtensionMethods.cs
         public static Point SnapToDevicePixels(this Point p, Visual targetVisual)
         {
