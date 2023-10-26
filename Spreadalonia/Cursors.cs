@@ -58,11 +58,15 @@ namespace Spreadalonia
 
         public static Cursor SelectColumnCursor(double dpi)
         {
-            if (dpi < 1.5)
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                return SelectColumnCursor16;
+            }
+            else if (dpi < 1.5)
             {
                 return SelectColumnCursor12;
             }
-            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            else if (dpi < 2)
             {
                 return SelectColumnCursor16;
             }
@@ -74,11 +78,15 @@ namespace Spreadalonia
 
         public static Cursor SelectRowCursor(double dpi)
         {
-            if (dpi < 1.5)
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                return SelectRowCursor16;
+            }
+            else if (dpi < 1.5)
             {
                 return SelectRowCursor12;
             }
-            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            else if (dpi < 2)
             {
                 return SelectRowCursor16;
             }
@@ -90,11 +98,15 @@ namespace Spreadalonia
 
         public static Cursor ResizeColumnCursor(double dpi)
         {
-            if (dpi < 1.5)
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                return ResizeColumnCursor25;
+            }
+            else if (dpi < 1.5)
             {
                 return ResizeColumnCursor18;
             }
-            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            else if (dpi < 2)
             {
                 return ResizeColumnCursor25;
             }
@@ -106,11 +118,15 @@ namespace Spreadalonia
 
         public static Cursor ResizeRowCursor(double dpi)
         {
-            if (dpi < 1.5)
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                return ResizeRowCursor25;
+            }
+            else if (dpi < 1.5)
             {
                 return ResizeRowCursor18;
             }
-            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            else if (dpi < 2)
             {
                 return ResizeRowCursor25;
             }
@@ -122,11 +138,15 @@ namespace Spreadalonia
 
         public static Cursor CrossCursor(double dpi)
         {
-            if (dpi < 1.5)
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                return CrossCursor21;
+            }
+            else if (dpi < 1.5)
             {
                 return CrossCursor15;
             }
-            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            else if (dpi < 2)
             {
                 return CrossCursor21;
             }
@@ -138,11 +158,15 @@ namespace Spreadalonia
 
         public static Cursor MoveCursor(double dpi)
         {
-            if (dpi < 1.5)
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                return MoveCursor24;
+            }
+            else if (dpi < 1.5)
             {
                 return MoveCursor17;
             }
-            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            else if (dpi < 2)
             {
                 return MoveCursor24;
             }
@@ -154,11 +178,15 @@ namespace Spreadalonia
 
         public static Cursor MoveCopyCursor(double dpi)
         {
-            if (dpi < 1.5)
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                return MoveCopyCursor26;
+            }
+            else if (dpi < 1.5)
             {
                 return MoveCopyCursor18;
             }
-            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            else if (dpi < 2)
             {
                 return MoveCopyCursor26;
             }
@@ -170,11 +198,15 @@ namespace Spreadalonia
 
         public static Cursor FillCursor(double dpi)
         {
-            if (dpi < 1.5)
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            {
+                return FillCursor21;
+            }
+            else if (dpi < 1.5)
             {
                 return FillCursor14;
             }
-            else if (dpi < 2 || System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
+            else if (dpi < 2)
             {
                 return FillCursor21;
             }
