@@ -26,6 +26,7 @@ using Avalonia.Media;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 
 namespace Spreadalonia
 {
@@ -173,7 +174,7 @@ namespace Spreadalonia
             AffectsRender<Table>(OffsetProperty, DefaultColumnWidthProperty, DefaultRowHeightProperty, GridColorProperty, SelectionProperty, ForegroundProperty, BackgroundProperty, FontFamilyProperty, FontSizeProperty, FontStyleProperty, FontWeightProperty, SelectionAccentProperty, IsFocusedProperty, DefaultMarginProperty);
         }
 
-        protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
 
@@ -1160,9 +1161,9 @@ namespace Spreadalonia
                             hor = this.DefaultTextAlignment;
                         }
 
-                        FormattedText fmtText = new FormattedText(txt, face, this.FontSize, TextAlignment.Left, TextWrapping.NoWrap, new Size(lastDrawnXs[x] - realX - margin.Left - margin.Right, double.PositiveInfinity));
+                        FormattedText fmtText = new FormattedText(txt, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, face, this.FontSize, Foreground);
 
-                        double textWidth = fmtText.Bounds.Width;
+                        double textWidth = fmtText.Width;
 
                         if (hor == TextAlignment.Left)
                         {
@@ -1318,9 +1319,9 @@ namespace Spreadalonia
                                         double realX = x == 0 ? 0 : xs[x - 1];
                                         double realY = y == 0 ? 0 : ys[y - 1];
 
-                                        FormattedText fmtText = new FormattedText(txt, face, this.FontSize, TextAlignment.Left, TextWrapping.NoWrap, new Size(xs[x] - realX - margin.Left - margin.Right, double.PositiveInfinity));
+                                        FormattedText fmtText = new FormattedText(txt, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, face, this.FontSize, brs);
 
-                                        double textWidth = fmtText.Bounds.Width;
+                                        double textWidth = fmtText.Width;
 
                                         IBrush colourBrush = null;
 
@@ -1345,11 +1346,11 @@ namespace Spreadalonia
                                             }
                                             else if (ver == VerticalAlignment.Bottom)
                                             {
-                                                realY = ys[y] - margin.Bottom - fmtText.Bounds.Height;
+                                                realY = ys[y] - margin.Bottom - fmtText.Height;
                                             }
                                             else if (ver == VerticalAlignment.Center || ver == VerticalAlignment.Stretch)
                                             {
-                                                realY = (realY + margin.Top + ys[y] - margin.Bottom) * 0.5 - fmtText.Bounds.Height * 0.5;
+                                                realY = (realY + margin.Top + ys[y] - margin.Bottom) * 0.5 - fmtText.Height * 0.5;
                                             }
 
                                             if (hor == TextAlignment.Left)
@@ -1368,11 +1369,11 @@ namespace Spreadalonia
 
                                             if (colourBrush == null)
                                             {
-                                                context.DrawText(brs, new Point(realX, realY), fmtText);
+                                                context.DrawText(fmtText, new Point(realX, realY));
                                             }
                                             else
                                             {
-                                                double rectY = realY + fmtText.Bounds.Height * 0.5 - this.FontSize * 0.5;
+                                                double rectY = realY + fmtText.Height * 0.5 - this.FontSize * 0.5;
 
                                                 if (txt.Length == 9)
                                                 {
@@ -1381,7 +1382,7 @@ namespace Spreadalonia
                                                 }
 
                                                 context.DrawRectangle(colourBrush, blackPen, new Rect(new Point(realX, rectY).SnapToDevicePixels(this), new Size(this.FontSize, this.FontSize)), 0, 0);
-                                                context.DrawText(brs, new Point(realX + this.FontSize + 3, realY), fmtText);
+                                                context.DrawText(fmtText, new Point(realX + this.FontSize + 3, realY));
                                             }
                                         }
                                     }
@@ -1635,7 +1636,7 @@ namespace Spreadalonia
                                         text = this.Data.GetLastFillTop(selectionBeingMoved.Top, selectionBeingMoved.Bottom, isRows ? 0 : selectionBeingMoved.Right, -selectionBeingMoved.Height - selectionMoveDelta.Item2 + 1);
                                     }
 
-                                    FormattedText txt = new FormattedText(text, defaultTypeFace, this.FontSize, TextAlignment.Left, TextWrapping.NoWrap, new Size(double.PositiveInfinity, double.PositiveInfinity));
+                                    FormattedText txt = new FormattedText(text, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, defaultTypeFace, this.FontSize, this.Foreground);
 
                                     Point topLeft = new Point(x1 + 3, y1 + 3);
 
@@ -1649,16 +1650,16 @@ namespace Spreadalonia
                                     }
                                     else if ((direction == -1 && isColumns) || (direction == -2 && isRows))
                                     {
-                                        topLeft = new Point(Math.Max(3, x0 - 9 - txt.Bounds.Width), y0 + 3);
+                                        topLeft = new Point(Math.Max(3, x0 - 9 - txt.Width), y0 + 3);
                                     }
 
-                                    Point bottomRight = new Point(topLeft.X + 6 + txt.Bounds.Width, topLeft.Y + 6 + txt.Bounds.Height);
+                                    Point bottomRight = new Point(topLeft.X + 6 + txt.Width, topLeft.Y + 6 + txt.Height);
 
                                     topLeft = topLeft.SnapToDevicePixels(this);
                                     bottomRight = bottomRight.SnapToDevicePixels(this);
 
                                     context.DrawRectangle(this.Background, gridPen, new Rect(topLeft, bottomRight), 0, 0, new BoxShadows(new BoxShadow() { OffsetX = 3, OffsetY = 3, Blur = 5, Color = Color.FromArgb((byte)(this.GridColor.A * 0.5), this.GridColor.R, this.GridColor.G, this.GridColor.B), Spread = 0 }));
-                                    context.DrawText(this.Foreground, new Point(topLeft.X + 3, topLeft.Y + 3), txt);
+                                    context.DrawText(txt, new Point(topLeft.X + 3, topLeft.Y + 3));
                                 }
                             }
                         }

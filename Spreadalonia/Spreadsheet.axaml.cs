@@ -27,6 +27,7 @@ using Fare;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -78,20 +79,7 @@ namespace Spreadalonia
         /// <summary>
         /// The data contained in the spreadsheet. Please do not change this directly, or you will mess up the Undo/Redo stack.
         /// </summary>
-        public Dictionary<(int, int), string> Data
-        {
-            get
-            {
-                if (this.IsInitialized)
-                {
-                    return this.FindControl<Table>("ContentTable").Data;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
+        public Dictionary<(int, int), string> Data => IsInitialized ? ContentTable.Data : null;
 
         /// <summary>
         /// Defines the <see cref="DefaultTextAlignment"/> property.
@@ -437,11 +425,6 @@ namespace Spreadalonia
         internal Stack<ValueStackFrame<int, double>> RedoStackRowHeight { get; } = new Stack<ValueStackFrame<int, double>>();
         internal Stack<ValueStackFrame<int, double>> RedoStackColumnWidth { get; } = new Stack<ValueStackFrame<int, double>>();
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         /// <summary>
         /// Create a new <see cref="Spreadsheet"/> instance.
         /// </summary>
@@ -449,130 +432,129 @@ namespace Spreadalonia
         {
             InitializeComponent();
 
-            this.FindControl<HorizontalHeader>("HorizontalHeaderControl").FontFamily = this.HeaderFontFamily;
-            this.FindControl<VerticalHeader>("VerticalHeaderControl").FontFamily = this.HeaderFontFamily;
+            HorizontalHeaderControl.FontFamily = this.HeaderFontFamily;
+            VerticalHeaderControl.FontFamily = this.HeaderFontFamily;
 
-            this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Owner = this.FindControl<Table>("ContentTable");
-            this.FindControl<VerticalHeader>("VerticalHeaderControl").Owner = this.FindControl<Table>("ContentTable");
-            this.FindControl<TopLeftCorner>("TopLeftCornerControl").Owner = this.FindControl<Table>("ContentTable");
-            this.FindControl<Overlay>("IconOverlay").Owner = this.FindControl<Table>("ContentTable");
+            HorizontalHeaderControl.Owner = ContentTable;
+            VerticalHeaderControl.Owner = ContentTable;
+            TopLeftCornerControl.Owner = ContentTable;
+            IconOverlay.Owner = ContentTable;
 
-            this.FindControl<ScrollBar>("HorizontalScrollBar").SmallChange = this.FindControl<Table>("ContentTable").DefaultColumnWidth;
-            this.FindControl<ScrollBar>("HorizontalScrollBar").LargeChange = this.FindControl<Table>("ContentTable").DefaultColumnWidth * 3;
-            this.FindControl<ScrollBar>("VerticalScrollBar").SmallChange = this.FindControl<Table>("ContentTable").DefaultRowHeight;
-            this.FindControl<ScrollBar>("VerticalScrollBar").LargeChange = this.FindControl<Table>("ContentTable").DefaultRowHeight * 3;
+            HorizontalScrollBar.SmallChange = ContentTable.DefaultColumnWidth;
+            HorizontalScrollBar.LargeChange = ContentTable.DefaultColumnWidth * 3;
+            VerticalScrollBar.SmallChange = ContentTable.DefaultRowHeight;
+            VerticalScrollBar.LargeChange = ContentTable.DefaultRowHeight * 3;
 
-            this.FindControl<Canvas>("CutIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.Cut")));
-            this.FindControl<Canvas>("CopyIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.CopyDoc")));
-            this.FindControl<Canvas>("PasteIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.PasteDoc")));
+            CutIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.Cut")));
+            CopyIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.CopyDoc")));
+            PasteIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.PasteDoc")));
 
-            this.FindControl<Canvas>("InsertColIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.InsertColumn")));
-            this.FindControl<Canvas>("DeleteColIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.DeleteColumn")));
-            this.FindControl<Canvas>("InsertRowIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.InsertRow")));
-            this.FindControl<Canvas>("DeleteRowIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.DeleteRow")));
+            InsertColIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.InsertColumn")));
+            DeleteColIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.DeleteColumn")));
+            InsertRowIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.InsertRow")));
+            DeleteRowIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.DeleteRow")));
 
-            this.FindControl<Canvas>("ClearContentsIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.ClearContents")));
-            this.FindControl<Canvas>("ClearFormatIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.ClearFormat")));
+            ClearContentsIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.ClearContents")));
+            ClearFormatIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.ClearFormat")));
 
-            this.FindControl<Canvas>("AutoWidthIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.AutoWidth")));
-            this.FindControl<Canvas>("AutoHeightIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.AutoHeight")));
+            AutoWidthIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.AutoWidth")));
+            AutoHeightIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.AutoHeight")));
 
-            this.FindControl<Canvas>("ResetWidthIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.ResetWidth")));
-            this.FindControl<Canvas>("ResetHeightIcon").Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.ResetHeight")));
+            ResetWidthIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.ResetWidth")));
+            ResetHeightIcon.Children.Add(new DPIAwareBox(Icons.GetIcon16("Spreadalonia.Icons.ResetHeight")));
 
-
-            this.FindControl<ScrollBar>("HorizontalScrollBar").PropertyChanged += (s, e) =>
+            HorizontalScrollBar.PropertyChanged += (s, e) =>
             {
                 if (e.Property == ScrollBar.ValueProperty)
                 {
-                    Vector newOffset = new Avalonia.Vector(this.FindControl<ScrollBar>("HorizontalScrollBar").Value, this.FindControl<ScrollBar>("VerticalScrollBar").Value);
+                    Vector newOffset = new Avalonia.Vector(HorizontalScrollBar.Value, VerticalScrollBar.Value);
 
                     if (scrollBarXBusy)
                     {
-                        this.FindControl<Table>("ContentTable").Offset = newOffset;
-                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Offset = newOffset;
-                        this.FindControl<VerticalHeader>("VerticalHeaderControl").Offset = newOffset;
-                        this.FindControl<Overlay>("IconOverlay").Offset = newOffset;
+                        ContentTable.Offset = newOffset;
+                        HorizontalHeaderControl.Offset = newOffset;
+                        VerticalHeaderControl.Offset = newOffset;
+                        IconOverlay.Offset = newOffset;
                     }
                     else
                     {
-                        this.FindControl<Table>("ContentTable").PauseTransitions();
-                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").PauseTransitions();
-                        this.FindControl<VerticalHeader>("VerticalHeaderControl").PauseTransitions();
-                        this.FindControl<Table>("ContentTable").Offset = newOffset;
-                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Offset = newOffset;
-                        this.FindControl<VerticalHeader>("VerticalHeaderControl").Offset = newOffset;
-                        this.FindControl<Overlay>("IconOverlay").Offset = newOffset;
-                        this.FindControl<Table>("ContentTable").ResumeTransitions();
-                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").ResumeTransitions();
-                        this.FindControl<VerticalHeader>("VerticalHeaderControl").ResumeTransitions();
+                        ContentTable.PauseTransitions();
+                        HorizontalHeaderControl.PauseTransitions();
+                        VerticalHeaderControl.PauseTransitions();
+                        ContentTable.Offset = newOffset;
+                        HorizontalHeaderControl.Offset = newOffset;
+                        VerticalHeaderControl.Offset = newOffset;
+                        IconOverlay.Offset = newOffset;
+                        ContentTable.ResumeTransitions();
+                        HorizontalHeaderControl.ResumeTransitions();
+                        VerticalHeaderControl.ResumeTransitions();
                     }
                 }
             };
 
-            this.FindControl<ScrollBar>("VerticalScrollBar").PropertyChanged += (s, e) =>
+            VerticalScrollBar.PropertyChanged += (s, e) =>
             {
                 if (e.Property == ScrollBar.ValueProperty)
                 {
-                    Vector newOffset = new Avalonia.Vector(this.FindControl<ScrollBar>("HorizontalScrollBar").Value, this.FindControl<ScrollBar>("VerticalScrollBar").Value);
+                    Vector newOffset = new Avalonia.Vector(HorizontalScrollBar.Value, VerticalScrollBar.Value);
 
                     if (scrollBarYBusy)
                     {
-                        this.FindControl<Table>("ContentTable").Offset = newOffset;
-                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Offset = newOffset;
-                        this.FindControl<VerticalHeader>("VerticalHeaderControl").Offset = newOffset;
-                        this.FindControl<Overlay>("IconOverlay").Offset = newOffset;
+                        ContentTable.Offset = newOffset;
+                        HorizontalHeaderControl.Offset = newOffset;
+                        VerticalHeaderControl.Offset = newOffset;
+                        IconOverlay.Offset = newOffset;
                     }
                     else
                     {
-                        this.FindControl<Table>("ContentTable").PauseTransitions();
-                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").PauseTransitions();
-                        this.FindControl<VerticalHeader>("VerticalHeaderControl").PauseTransitions();
-                        this.FindControl<Table>("ContentTable").Offset = newOffset;
-                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").Offset = newOffset;
-                        this.FindControl<VerticalHeader>("VerticalHeaderControl").Offset = newOffset;
-                        this.FindControl<Overlay>("IconOverlay").Offset = newOffset;
-                        this.FindControl<Table>("ContentTable").ResumeTransitions();
-                        this.FindControl<HorizontalHeader>("HorizontalHeaderControl").ResumeTransitions();
-                        this.FindControl<VerticalHeader>("VerticalHeaderControl").ResumeTransitions();
+                        ContentTable.PauseTransitions();
+                        HorizontalHeaderControl.PauseTransitions();
+                        VerticalHeaderControl.PauseTransitions();
+                        ContentTable.Offset = newOffset;
+                        HorizontalHeaderControl.Offset = newOffset;
+                        VerticalHeaderControl.Offset = newOffset;
+                        IconOverlay.Offset = newOffset;
+                        ContentTable.ResumeTransitions();
+                        HorizontalHeaderControl.ResumeTransitions();
+                        VerticalHeaderControl.ResumeTransitions();
                     }
                 }
             };
 
-            this.FindControl<ScrollBar>("HorizontalScrollBar").AddHandler(PointerPressedEvent, (s, e) =>
+            HorizontalScrollBar.AddHandler(PointerPressedEvent, (s, e) =>
             {
                 scrollBarXBusy = true;
 
                 if ((e.Pointer.Captured as Visual).Name == "ThumbVisual")
                 {
-                    this.FindControl<Table>("ContentTable").PauseTransitions();
-                    this.FindControl<HorizontalHeader>("HorizontalHeaderControl").PauseTransitions();
-                    this.FindControl<VerticalHeader>("VerticalHeaderControl").PauseTransitions();
+                    ContentTable.PauseTransitions();
+                    HorizontalHeaderControl.PauseTransitions();
+                    VerticalHeaderControl.PauseTransitions();
                 }
 
             }, handledEventsToo: true);
 
-            this.FindControl<ScrollBar>("VerticalScrollBar").AddHandler(PointerPressedEvent, (s, e) =>
+            VerticalScrollBar.AddHandler(PointerPressedEvent, (s, e) =>
             {
                 scrollBarYBusy = true;
 
                 if ((e.Pointer.Captured as Visual).Name == "ThumbVisual")
                 {
-                    this.FindControl<Table>("ContentTable").PauseTransitions();
-                    this.FindControl<HorizontalHeader>("HorizontalHeaderControl").PauseTransitions();
-                    this.FindControl<VerticalHeader>("VerticalHeaderControl").PauseTransitions();
+                    ContentTable.PauseTransitions();
+                    HorizontalHeaderControl.PauseTransitions();
+                    VerticalHeaderControl.PauseTransitions();
                 }
             }, handledEventsToo: true);
 
-            this.FindControl<ScrollBar>("HorizontalScrollBar").AddHandler(PointerReleasedEvent, (s, e) =>
+            HorizontalScrollBar.AddHandler(PointerReleasedEvent, (s, e) =>
             {
                 scrollBarXBusy = false;
 
                 if ((e.Pointer.Captured as Visual).Name == "ThumbVisual")
                 {
-                    this.FindControl<Table>("ContentTable").ResumeTransitions();
-                    this.FindControl<HorizontalHeader>("HorizontalHeaderControl").ResumeTransitions();
-                    this.FindControl<VerticalHeader>("VerticalHeaderControl").ResumeTransitions();
+                    ContentTable.ResumeTransitions();
+                    HorizontalHeaderControl.ResumeTransitions();
+                    VerticalHeaderControl.ResumeTransitions();
                 }
 
                 if (delayedScrollBarMaximum != null)
@@ -583,15 +565,15 @@ namespace Spreadalonia
                 }
             }, handledEventsToo: true);
 
-            this.FindControl<ScrollBar>("VerticalScrollBar").AddHandler(PointerReleasedEvent, (s, e) =>
+            VerticalScrollBar.AddHandler(PointerReleasedEvent, (s, e) =>
             {
                 scrollBarYBusy = false;
 
                 if ((e.Pointer.Captured as Visual).Name == "ThumbVisual")
                 {
-                    this.FindControl<Table>("ContentTable").ResumeTransitions();
-                    this.FindControl<HorizontalHeader>("HorizontalHeaderControl").ResumeTransitions();
-                    this.FindControl<VerticalHeader>("VerticalHeaderControl").ResumeTransitions();
+                    ContentTable.ResumeTransitions();
+                    HorizontalHeaderControl.ResumeTransitions();
+                    VerticalHeaderControl.ResumeTransitions();
                 }
 
                 if (delayedScrollBarMaximum != null)
@@ -602,26 +584,26 @@ namespace Spreadalonia
                 }
             }, handledEventsToo: true);
 
-            this.FindControl<TextBox>("EditingBox").PropertyChanged += (s, e) =>
+            EditingBox.PropertyChanged += (s, e) =>
             {
                 if (e.Property == TextBox.TextProperty)
                 {
-                    FormattedText txt = new FormattedText(this.FindControl<TextBox>("EditingBox").Text,
-                        new Typeface(this.FindControl<TextBox>("EditingBox").FontFamily, this.FindControl<TextBox>("EditingBox").FontStyle, this.FindControl<TextBox>("EditingBox").FontWeight),
-                        this.FindControl<TextBox>("EditingBox").FontSize, this.FindControl<TextBox>("EditingBox").TextAlignment, this.FindControl<TextBox>("EditingBox").TextWrapping, new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    FormattedText txt = new FormattedText(EditingBox.Text, CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
+                        new Typeface(EditingBox.FontFamily, EditingBox.FontStyle, EditingBox.FontWeight),
+                        EditingBox.FontSize, Foreground);
 
-                    this.FindControl<TextBox>("EditingBox").Width = txt.Bounds.Width + 1;
-                    this.FindControl<TextBox>("EditingBox").Height = txt.Bounds.Height;
+                    EditingBox.Width = txt.Width + 1;
+                    EditingBox.Height = txt.Height;
                 }
             };
 
-            this.FindControl<TextBox>("EditingBox").LostFocus += (s, e) =>
+            EditingBox.LostFocus += (s, e) =>
             {
-                if (this.IsEditing)
+                if (IsEditing)
                 {
-                    string newText = this.FindControl<TextBox>("EditingBox").Text;
+                    string newText = EditingBox.Text;
 
-                    bool present = this.FindControl<Table>("ContentTable").Data.TryGetValue(this.EditingCell, out string prevVal);
+                    bool present = ContentTable.Data.TryGetValue(this.EditingCell, out string prevVal);
 
                     if ((present && prevVal != newText) || (!present && !string.IsNullOrEmpty(newText)))
                     {
@@ -629,48 +611,48 @@ namespace Spreadalonia
                         if (!string.IsNullOrEmpty(newText))
                         {
                             this.UndoStack.Push(new StackFrame<(int, int), string>(ImmutableList.Create(new SelectionRange(this.EditingCell)), new Dictionary<(int, int), string>() { { this.EditingCell, prevVal } }, new Dictionary<(int, int), string>() { { this.EditingCell, newText } }));
-                            this.FindControl<Table>("ContentTable").Data[this.EditingCell] = newText;
+                            ContentTable.Data[this.EditingCell] = newText;
                         }
                         else
                         {
                             this.UndoStack.Push(new StackFrame<(int, int), string>(ImmutableList.Create(new SelectionRange(this.EditingCell)), new Dictionary<(int, int), string>() { { this.EditingCell, prevVal } }, new Dictionary<(int, int), string>() { { this.EditingCell, null } }));
-                            this.FindControl<Table>("ContentTable").Data.Remove(this.EditingCell);
+                            ContentTable.Data.Remove(this.EditingCell);
                         }
 
                         this.PushNonDataStackNull();
                         this.ClearRedoStack();
                     }
 
-                    this.IsEditing = false;
-                    this.FindControl<Table>("ContentTable").InvalidateVisual();
+                    IsEditing = false;
+                    ContentTable.InvalidateVisual();
                 }
             };
 
-            this.FindControl<TextBox>("EditingBox").KeyDown += (s, e) =>
+            EditingBox.KeyDown += (s, e) =>
             {
                 if (e.Key == Key.Return)
                 {
                     if (e.KeyModifiers == KeyModifiers.Alt)
                     {
-                        int selectionStart = this.FindControl<TextBox>("EditingBox").SelectionStart;
-                        int selectionEnd = this.FindControl<TextBox>("EditingBox").SelectionEnd;
-                        string text = this.FindControl<TextBox>("EditingBox").Text;
+                        int selectionStart = EditingBox.SelectionStart;
+                        int selectionEnd = EditingBox.SelectionEnd;
+                        string text = EditingBox.Text;
 
-                        this.FindControl<TextBox>("EditingBox").Text = text.Substring(0, selectionStart) + "\n" + text.Substring(selectionEnd);
-                        this.FindControl<TextBox>("EditingBox").SelectionStart = selectionStart + 1;
-                        this.FindControl<TextBox>("EditingBox").SelectionEnd = selectionStart + 1;
+                        EditingBox.Text = text.Substring(0, selectionStart) + "\n" + text.Substring(selectionEnd);
+                        EditingBox.SelectionStart = selectionStart + 1;
+                        EditingBox.SelectionEnd = selectionStart + 1;
                         e.Handled = true;
                     }
                     else if (e.KeyModifiers == KeyModifiers.None)
                     {
                         this.Selection = ImmutableList.Create(new SelectionRange(EditingCell.Item1, EditingCell.Item2 + 1));
-                        this.FindControl<Table>("ContentTable").Focus();
+                        ContentTable.Focus();
                         e.Handled = true;
                     }
                     else if (e.KeyModifiers == KeyModifiers.Shift)
                     {
                         this.Selection = ImmutableList.Create(new SelectionRange(EditingCell.Item1, Math.Max(0, EditingCell.Item2 - 1)));
-                        this.FindControl<Table>("ContentTable").Focus();
+                        ContentTable.Focus();
                         e.Handled = true;
                     }
                 }
@@ -678,13 +660,13 @@ namespace Spreadalonia
                 {
                     if (e.KeyModifiers == KeyModifiers.Shift)
                     {
-                        this.FindControl<Table>("ContentTable").Focus();
+                        ContentTable.Focus();
                         this.Selection = ImmutableList.Create(new SelectionRange(Math.Max(0, EditingCell.Item1 - 1), EditingCell.Item2, Math.Max(0, EditingCell.Item1 - 1), EditingCell.Item2));
                         e.Handled = true;
                     }
                     else if (e.KeyModifiers == KeyModifiers.None)
                     {
-                        this.FindControl<Table>("ContentTable").Focus();
+                        ContentTable.Focus();
                         this.Selection = ImmutableList.Create(new SelectionRange(EditingCell.Item1 + 1, EditingCell.Item2, EditingCell.Item1 + 1, EditingCell.Item2));
                         e.Handled = true;
                     }
@@ -692,110 +674,110 @@ namespace Spreadalonia
                 }
                 else if (e.Key == Key.Escape)
                 {
-                    if (!this.FindControl<Table>("ContentTable").Data.TryGetValue(this.EditingCell, out string txt))
+                    if (!ContentTable.Data.TryGetValue(this.EditingCell, out string txt))
                     {
                         txt = null;
                     }
 
-                    this.FindControl<TextBox>("EditingBox").Text = txt;
-                    this.FindControl<Table>("ContentTable").Focus();
+                    EditingBox.Text = txt;
+                    ContentTable.Focus();
                     e.Handled = true;
                 }
             };
 
-            this.FindControl<ContextMenu>("TableContextMenu").ContextMenuOpening += async (s, e) =>
+            TableContextMenu.Opening += async (s, e) =>
             {
-                this.FindControl<MenuItem>("CopyMenuItem").IsEnabled = this.Selection.Count > 0;
-                this.FindControl<MenuItem>("CutMenuItem").IsEnabled = this.Selection.Count > 0;
+                CopyMenuItem.IsEnabled = this.Selection.Count > 0;
+                CutMenuItem.IsEnabled = this.Selection.Count > 0;
 
-                bool clipboardContainsText = await Application.Current.Clipboard.ContainsText();
-                this.FindControl<MenuItem>("PasteMenuItem").IsEnabled = this.Selection.Count == 1 && clipboardContainsText;
-                this.FindControl<MenuItem>("PasteSkipBlanksMenuItem").IsEnabled = this.Selection.Count == 1 && clipboardContainsText;
+                bool clipboardContainsText = await TopLevel.GetTopLevel(this)?.Clipboard.ContainsText();
+                PasteMenuItem.IsEnabled = this.Selection.Count == 1 && clipboardContainsText;
+                PasteSkipBlanksMenuItem.IsEnabled = this.Selection.Count == 1 && clipboardContainsText;
 
-                this.FindControl<MenuItem>("InsertColMenuItem").IsVisible = this.Selection.Count == 1 && (this.Selection[0].IsColumns(this.FindControl<Table>("ContentTable")) && !this.Selection[0].IsRows(this.FindControl<Table>("ContentTable")));
-                this.FindControl<MenuItem>("DeleteColMenuItem").IsVisible = this.FindControl<MenuItem>("InsertColMenuItem").IsVisible;
+                InsertColMenuItem.IsVisible = this.Selection.Count == 1 && (this.Selection[0].IsColumns(ContentTable) && !this.Selection[0].IsRows(ContentTable));
+                DeleteColMenuItem.IsVisible = InsertColMenuItem.IsVisible;
 
-                this.FindControl<MenuItem>("InsertRowMenuItem").IsVisible = this.Selection.Count == 1 && (this.Selection[0].IsRows(this.FindControl<Table>("ContentTable")) && !this.Selection[0].IsColumns(this.FindControl<Table>("ContentTable")));
-                this.FindControl<MenuItem>("DeleteRowMenuItem").IsVisible = this.FindControl<MenuItem>("InsertRowMenuItem").IsVisible;
+                InsertRowMenuItem.IsVisible = this.Selection.Count == 1 && (this.Selection[0].IsRows(ContentTable) && !this.Selection[0].IsColumns(ContentTable));
+                DeleteRowMenuItem.IsVisible = InsertRowMenuItem.IsVisible;
 
-                this.FindControl<MenuItem>("ClearMenuItem").IsEnabled = this.Selection.Count > 0;
-                this.FindControl<MenuItem>("ResetFormatMenuItem").IsEnabled = this.Selection.Count > 0;
+                ClearMenuItem.IsEnabled = this.Selection.Count > 0;
+                ResetFormatMenuItem.IsEnabled = this.Selection.Count > 0;
 
-                this.FindControl<MenuItem>("AutoHeightMenuItem").IsVisible = this.Selection.Count > 0 && this.Selection.All(x => x.IsRows(this.FindControl<Table>("ContentTable")) && !x.IsColumns(this.FindControl<Table>("ContentTable")));
-                this.FindControl<MenuItem>("ResetHeightMenuItem").IsVisible = this.FindControl<MenuItem>("AutoHeightMenuItem").IsVisible;
+                AutoHeightMenuItem.IsVisible = this.Selection.Count > 0 && this.Selection.All(x => x.IsRows(ContentTable) && !x.IsColumns(ContentTable));
+                ResetHeightMenuItem.IsVisible = AutoHeightMenuItem.IsVisible;
 
-                this.FindControl<MenuItem>("AutoWidthMenuItem").IsVisible = this.Selection.Count > 0 && this.Selection.All(x => x.IsColumns(this.FindControl<Table>("ContentTable")) && !x.IsRows(this.FindControl<Table>("ContentTable")));
-                this.FindControl<MenuItem>("ResetWidthMenuItem").IsVisible = this.FindControl<MenuItem>("AutoWidthMenuItem").IsVisible;
+                AutoWidthMenuItem.IsVisible = this.Selection.Count > 0 && this.Selection.All(x => x.IsColumns(ContentTable) && !x.IsRows(ContentTable));
+                ResetWidthMenuItem.IsVisible = AutoWidthMenuItem.IsVisible;
 
-                this.FindControl<MenuItem>("LastSeparator").IsVisible = this.FindControl<MenuItem>("AutoWidthMenuItem").IsVisible || this.FindControl<MenuItem>("AutoHeightMenuItem").IsVisible;
+                LastSeparator.IsVisible = AutoWidthMenuItem.IsVisible || AutoHeightMenuItem.IsVisible;
             };
 
-            this.FindControl<MenuItem>("CopyMenuItem").Click += (s, e) => Copy();
-            this.FindControl<MenuItem>("CutMenuItem").Click += (s, e) => Cut();
-            this.FindControl<MenuItem>("PasteMenuItem").Click += async (s, e) => await Paste(true);
-            this.FindControl<MenuItem>("PasteSkipBlanksMenuItem").Click += async (s, e) => await Paste(false);
+            CopyMenuItem.Click += (s, e) => Copy();
+            CutMenuItem.Click += (s, e) => Cut();
+            PasteMenuItem.Click += async (s, e) => await Paste(true);
+            PasteSkipBlanksMenuItem.Click += async (s, e) => await Paste(false);
 
-            this.FindControl<MenuItem>("ClearMenuItem").Click += (s, e) => ClearContents();
+            ClearMenuItem.Click += (s, e) => ClearContents();
 
-            this.FindControl<MenuItem>("InsertColMenuItem").Click += (s, e) =>
+            InsertColMenuItem.Click += (s, e) =>
             {
                 InsertColumns();
             };
 
-            this.FindControl<MenuItem>("DeleteColMenuItem").Click += (s, e) =>
+            DeleteColMenuItem.Click += (s, e) =>
             {
                 DeleteColumns();
             };
 
-            this.FindControl<MenuItem>("InsertRowMenuItem").Click += (s, e) =>
+            InsertRowMenuItem.Click += (s, e) =>
             {
                 InsertRows();
             };
 
-            this.FindControl<MenuItem>("DeleteRowMenuItem").Click += (s, e) =>
+            DeleteRowMenuItem.Click += (s, e) =>
             {
                 DeleteRows();
             };
 
-            this.FindControl<MenuItem>("ResetFormatMenuItem").Click += (s, e) =>
+            ResetFormatMenuItem.Click += (s, e) =>
             {
                 ResetFormat();
             };
 
-            this.FindControl<MenuItem>("AutoWidthMenuItem").Click += (s, e) =>
+            AutoWidthMenuItem.Click += (s, e) =>
             {
                 AutoFitWidth();
             };
 
-            this.FindControl<MenuItem>("ResetWidthMenuItem").Click += (s, e) =>
+            ResetWidthMenuItem.Click += (s, e) =>
             {
                 ResetWidth();
             };
 
-            this.FindControl<MenuItem>("AutoHeightMenuItem").Click += (s, e) =>
+            AutoHeightMenuItem.Click += (s, e) =>
             {
                 AutoFitHeight();
             };
 
-            this.FindControl<MenuItem>("ResetHeightMenuItem").Click += (s, e) =>
+            ResetHeightMenuItem.Click += (s, e) =>
             {
                 ResetHeight();
             };
         }
 
         /// <inheritdoc/>
-        protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
 
             if (change.Property == IsEditingProperty)
             {
-                if (this.IsEditing)
+                if (IsEditing)
                 {
-                    this.FindControl<ScrollBar>("HorizontalScrollBar").IsEnabled = false;
-                    this.FindControl<ScrollBar>("VerticalScrollBar").IsEnabled = false;
+                    HorizontalScrollBar.IsEnabled = false;
+                    VerticalScrollBar.IsEnabled = false;
 
-                    Table table = this.FindControl<Table>("ContentTable");
+                    Table table = ContentTable;
 
                     double left = EditingCell.Item1 - table.lastDrawnLeft > 0 ? table.lastDrawnXs[EditingCell.Item1 - table.lastDrawnLeft - 1] : 0;
                     double top = EditingCell.Item2 - table.lastDrawnTop > 0 ? table.lastDrawnYs[EditingCell.Item2 - table.lastDrawnTop - 1] : 0;
@@ -840,47 +822,47 @@ namespace Spreadalonia
                         margin = table.DefaultMargin;
                     }
 
-                    this.FindControl<TextBox>("EditingBox").FontFamily = face.FontFamily;
-                    this.FindControl<TextBox>("EditingBox").FontStyle = face.Style;
-                    this.FindControl<TextBox>("EditingBox").FontWeight = face.Weight;
-                    this.FindControl<TextBox>("EditingBox").FontSize = this.FontSize;
+                    EditingBox.FontFamily = face.FontFamily;
+                    EditingBox.FontStyle = face.Style;
+                    EditingBox.FontWeight = face.Weight;
+                    EditingBox.FontSize = this.FontSize;
 
-                    this.FindControl<TextBox>("EditingBox").Foreground = brs;
+                    EditingBox.Foreground = brs;
 
-                    this.FindControl<TextBox>("EditingBox").TextAlignment = hor;
+                    EditingBox.TextAlignment = hor;
 
-                    this.FindControl<TextBox>("EditingBox").VerticalContentAlignment = ver;
+                    EditingBox.VerticalContentAlignment = ver;
 
                     Point pt = new Point(left + margin.Left - 1, top + margin.Top - 1);
 
-                    this.FindControl<TextBox>("EditingBox").Margin = new Thickness(pt.X, pt.Y, 0, 0);
+                    EditingBox.Margin = new Thickness(pt.X, pt.Y, 0, 0);
 
-                    this.FindControl<TextBox>("EditingBox").MinWidth = width - margin.Left - margin.Right;
-                    this.FindControl<TextBox>("EditingBox").MinHeight = height - margin.Top - margin.Bottom;
+                    EditingBox.MinWidth = width - margin.Left - margin.Right;
+                    EditingBox.MinHeight = height - margin.Top - margin.Bottom;
 
-                    this.FindControl<TextBox>("EditingBox").Text = txt;
-                    this.FindControl<TextBox>("EditingBox").SelectionStart = txt.Length;
-                    this.FindControl<TextBox>("EditingBox").SelectionEnd = txt.Length;
-                    this.FindControl<TextBox>("EditingBox").Focus();
-                    this.FindControl<TextBox>("EditingBox").IsVisible = true;
+                    EditingBox.Text = txt;
+                    EditingBox.SelectionStart = txt.Length;
+                    EditingBox.SelectionEnd = txt.Length;
+                    EditingBox.IsVisible = true;
+                    EditingBox.Focus();
                 }
                 else
                 {
-                    this.FindControl<ScrollBar>("HorizontalScrollBar").IsEnabled = true;
-                    this.FindControl<ScrollBar>("VerticalScrollBar").IsEnabled = true;
-                    this.FindControl<TextBox>("EditingBox").IsVisible = false;
+                    HorizontalScrollBar.IsEnabled = true;
+                    VerticalScrollBar.IsEnabled = true;
+                    EditingBox.IsVisible = false;
                 }
             }
             else if (change.Property == SelectionProperty)
             {
-                ImmutableList<SelectionRange> oldValue = change.OldValue.GetValueOrDefault<ImmutableList<SelectionRange>>();
-                ImmutableList<SelectionRange> newValue = change.NewValue.GetValueOrDefault<ImmutableList<SelectionRange>>();
+                ImmutableList<SelectionRange> oldValue = change.GetOldValue<ImmutableList<SelectionRange>>();
+                ImmutableList<SelectionRange> newValue = change.GetNewValue<ImmutableList<SelectionRange>>();
 
                 if (newValue != null && newValue.Count > 0)
                 {
                     SelectionRange newRange = newValue.Merge();
 
-                    Table table = this.FindControl<Table>("ContentTable");
+                    Table table = ContentTable;
 
                     Rect topLeft = table.GetCoordinates(newRange.Left, newRange.Top);
                     Rect bottomRight = topLeft;
@@ -908,13 +890,13 @@ namespace Spreadalonia
                             {
                                 if (table.lastDrawnLeft > newRange.Left - 1)
                                 {
-                                    SetScrollbarMaximum(Math.Max(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, topLeft.Right - table.Bounds.Width + 20), this.FindControl<ScrollBar>("VerticalScrollBar").Maximum);
-                                    this.FindControl<ScrollBar>("HorizontalScrollBar").Value = topLeft.Left;
+                                    SetScrollbarMaximum(Math.Max(HorizontalScrollBar.Maximum, topLeft.Right - table.Bounds.Width + 20), VerticalScrollBar.Maximum);
+                                    HorizontalScrollBar.Value = topLeft.Left;
                                 }
                                 else
                                 {
-                                    SetScrollbarMaximum(Math.Max(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, topLeft.Right - table.Bounds.Width + 20), this.FindControl<ScrollBar>("VerticalScrollBar").Maximum);
-                                    this.FindControl<ScrollBar>("HorizontalScrollBar").Value = topLeft.Right - table.Bounds.Width + 20;
+                                    SetScrollbarMaximum(Math.Max(HorizontalScrollBar.Maximum, topLeft.Right - table.Bounds.Width + 20), VerticalScrollBar.Maximum);
+                                    HorizontalScrollBar.Value = topLeft.Right - table.Bounds.Width + 20;
                                 }
                             }
                         }
@@ -924,13 +906,13 @@ namespace Spreadalonia
                             {
                                 if (table.lastDrawnLeft > newRange.Right - 1)
                                 {
-                                    SetScrollbarMaximum(Math.Max(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, bottomRight.Right - table.Bounds.Width + 20), this.FindControl<ScrollBar>("VerticalScrollBar").Maximum);
-                                    this.FindControl<ScrollBar>("HorizontalScrollBar").Value = bottomRight.Left;
+                                    SetScrollbarMaximum(Math.Max(HorizontalScrollBar.Maximum, bottomRight.Right - table.Bounds.Width + 20), VerticalScrollBar.Maximum);
+                                    HorizontalScrollBar.Value = bottomRight.Left;
                                 }
                                 else
                                 {
-                                    SetScrollbarMaximum(Math.Max(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, bottomRight.Right - table.Bounds.Width + 20), this.FindControl<ScrollBar>("VerticalScrollBar").Maximum);
-                                    this.FindControl<ScrollBar>("HorizontalScrollBar").Value = bottomRight.Right - table.Bounds.Width + 20;
+                                    SetScrollbarMaximum(Math.Max(HorizontalScrollBar.Maximum, bottomRight.Right - table.Bounds.Width + 20), VerticalScrollBar.Maximum);
+                                    HorizontalScrollBar.Value = bottomRight.Right - table.Bounds.Width + 20;
                                 }
                             }
                         }
@@ -941,13 +923,13 @@ namespace Spreadalonia
                             {
                                 if (table.lastDrawnTop > newRange.Top - 1)
                                 {
-                                    SetScrollbarMaximum(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, Math.Max(this.FindControl<ScrollBar>("VerticalScrollBar").Maximum, topLeft.Bottom - table.Bounds.Height));
-                                    this.FindControl<ScrollBar>("VerticalScrollBar").Value = topLeft.Top;
+                                    SetScrollbarMaximum(HorizontalScrollBar.Maximum, Math.Max(VerticalScrollBar.Maximum, topLeft.Bottom - table.Bounds.Height));
+                                    VerticalScrollBar.Value = topLeft.Top;
                                 }
                                 else
                                 {
-                                    SetScrollbarMaximum(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, Math.Max(this.FindControl<ScrollBar>("VerticalScrollBar").Maximum, topLeft.Bottom - table.Bounds.Height));
-                                    this.FindControl<ScrollBar>("VerticalScrollBar").Value = topLeft.Bottom - table.Bounds.Height;
+                                    SetScrollbarMaximum(HorizontalScrollBar.Maximum, Math.Max(VerticalScrollBar.Maximum, topLeft.Bottom - table.Bounds.Height));
+                                    VerticalScrollBar.Value = topLeft.Bottom - table.Bounds.Height;
                                 }
                             }
                         }
@@ -957,13 +939,13 @@ namespace Spreadalonia
                             {
                                 if (table.lastDrawnTop > newRange.Bottom - 1)
                                 {
-                                    SetScrollbarMaximum(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, Math.Max(this.FindControl<ScrollBar>("VerticalScrollBar").Maximum, bottomRight.Bottom - table.Bounds.Height));
-                                    this.FindControl<ScrollBar>("VerticalScrollBar").Value = bottomRight.Top;
+                                    SetScrollbarMaximum(HorizontalScrollBar.Maximum, Math.Max(VerticalScrollBar.Maximum, bottomRight.Bottom - table.Bounds.Height));
+                                    VerticalScrollBar.Value = bottomRight.Top;
                                 }
                                 else
                                 {
-                                    SetScrollbarMaximum(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, Math.Max(this.FindControl<ScrollBar>("VerticalScrollBar").Maximum, bottomRight.Bottom - table.Bounds.Height));
-                                    this.FindControl<ScrollBar>("VerticalScrollBar").Value = bottomRight.Bottom - table.Bounds.Height;
+                                    SetScrollbarMaximum(HorizontalScrollBar.Maximum, Math.Max(VerticalScrollBar.Maximum, bottomRight.Bottom - table.Bounds.Height));
+                                    VerticalScrollBar.Value = bottomRight.Bottom - table.Bounds.Height;
                                 }
                             }
                         }
@@ -976,13 +958,13 @@ namespace Spreadalonia
                             {
                                 if (table.lastDrawnLeft > newRange.Right - 1)
                                 {
-                                    SetScrollbarMaximum(Math.Max(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, bottomRight.Right - table.Bounds.Width + 20), this.FindControl<ScrollBar>("VerticalScrollBar").Maximum);
-                                    this.FindControl<ScrollBar>("HorizontalScrollBar").Value = bottomRight.Left;
+                                    SetScrollbarMaximum(Math.Max(HorizontalScrollBar.Maximum, bottomRight.Right - table.Bounds.Width + 20), VerticalScrollBar.Maximum);
+                                    HorizontalScrollBar.Value = bottomRight.Left;
                                 }
                                 else
                                 {
-                                    SetScrollbarMaximum(Math.Max(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, bottomRight.Right - table.Bounds.Width + 20), this.FindControl<ScrollBar>("VerticalScrollBar").Maximum);
-                                    this.FindControl<ScrollBar>("HorizontalScrollBar").Value = bottomRight.Right - table.Bounds.Width + 20;
+                                    SetScrollbarMaximum(Math.Max(HorizontalScrollBar.Maximum, bottomRight.Right - table.Bounds.Width + 20), VerticalScrollBar.Maximum);
+                                    HorizontalScrollBar.Value = bottomRight.Right - table.Bounds.Width + 20;
                                 }
                             }
                         }
@@ -993,13 +975,13 @@ namespace Spreadalonia
                             {
                                 if (table.lastDrawnTop > newRange.Bottom - 1)
                                 {
-                                    SetScrollbarMaximum(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, Math.Max(this.FindControl<ScrollBar>("VerticalScrollBar").Maximum, bottomRight.Bottom - table.Bounds.Height));
-                                    this.FindControl<ScrollBar>("VerticalScrollBar").Value = bottomRight.Top;
+                                    SetScrollbarMaximum(HorizontalScrollBar.Maximum, Math.Max(VerticalScrollBar.Maximum, bottomRight.Bottom - table.Bounds.Height));
+                                    VerticalScrollBar.Value = bottomRight.Top;
                                 }
                                 else
                                 {
-                                    SetScrollbarMaximum(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, Math.Max(this.FindControl<ScrollBar>("VerticalScrollBar").Maximum, bottomRight.Bottom - table.Bounds.Height));
-                                    this.FindControl<ScrollBar>("VerticalScrollBar").Value = bottomRight.Bottom - table.Bounds.Height;
+                                    SetScrollbarMaximum(HorizontalScrollBar.Maximum, Math.Max(VerticalScrollBar.Maximum, bottomRight.Bottom - table.Bounds.Height));
+                                    VerticalScrollBar.Value = bottomRight.Bottom - table.Bounds.Height;
                                 }
                             }
                         }
@@ -1008,13 +990,13 @@ namespace Spreadalonia
                         {
                             if (table.lastDrawnLeft > newRange.Left - 1)
                             {
-                                SetScrollbarMaximum(Math.Max(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, topLeft.Right - table.Bounds.Width + 20), this.FindControl<ScrollBar>("VerticalScrollBar").Maximum);
-                                this.FindControl<ScrollBar>("HorizontalScrollBar").Value = topLeft.Left;
+                                SetScrollbarMaximum(Math.Max(HorizontalScrollBar.Maximum, topLeft.Right - table.Bounds.Width + 20), VerticalScrollBar.Maximum);
+                                HorizontalScrollBar.Value = topLeft.Left;
                             }
                             else
                             {
-                                SetScrollbarMaximum(Math.Max(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, topLeft.Right - table.Bounds.Width + 20), this.FindControl<ScrollBar>("VerticalScrollBar").Maximum);
-                                this.FindControl<ScrollBar>("HorizontalScrollBar").Value = topLeft.Right - table.Bounds.Width + 20;
+                                SetScrollbarMaximum(Math.Max(HorizontalScrollBar.Maximum, topLeft.Right - table.Bounds.Width + 20), VerticalScrollBar.Maximum);
+                                HorizontalScrollBar.Value = topLeft.Right - table.Bounds.Width + 20;
                             }
                         }
 
@@ -1022,13 +1004,13 @@ namespace Spreadalonia
                         {
                             if (table.lastDrawnTop > newRange.Top - 1)
                             {
-                                SetScrollbarMaximum(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, Math.Max(this.FindControl<ScrollBar>("VerticalScrollBar").Maximum, topLeft.Bottom - table.Bounds.Height));
-                                this.FindControl<ScrollBar>("VerticalScrollBar").Value = topLeft.Top;
+                                SetScrollbarMaximum(HorizontalScrollBar.Maximum, Math.Max(VerticalScrollBar.Maximum, topLeft.Bottom - table.Bounds.Height));
+                                VerticalScrollBar.Value = topLeft.Top;
                             }
                             else
                             {
-                                SetScrollbarMaximum(this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum, Math.Max(this.FindControl<ScrollBar>("VerticalScrollBar").Maximum, topLeft.Bottom - table.Bounds.Height));
-                                this.FindControl<ScrollBar>("VerticalScrollBar").Value = topLeft.Bottom - table.Bounds.Height;
+                                SetScrollbarMaximum(HorizontalScrollBar.Maximum, Math.Max(VerticalScrollBar.Maximum, topLeft.Bottom - table.Bounds.Height));
+                                VerticalScrollBar.Value = topLeft.Bottom - table.Bounds.Height;
                             }
                         }
                     }
@@ -1036,25 +1018,25 @@ namespace Spreadalonia
             }
             else if (change.Property == HeaderFontFamilyProperty)
             {
-                this.FindControl<HorizontalHeader>("HorizontalHeaderControl").FontFamily = this.HeaderFontFamily;
-                this.FindControl<VerticalHeader>("VerticalHeaderControl").FontFamily = this.HeaderFontFamily;
+                HorizontalHeaderControl.FontFamily = this.HeaderFontFamily;
+                VerticalHeaderControl.FontFamily = this.HeaderFontFamily;
             }
             else if (change.Property == MaxTableWidthProperty)
             {
-                this.FindControl<Table>("ContentTable").MaxTableWidth = this.MaxTableWidth;
+                ContentTable.MaxTableWidth = this.MaxTableWidth;
             }
             else if (change.Property == MaxTableHeightProperty)
             {
-                this.FindControl<Table>("ContentTable").MaxTableHeight = this.MaxTableHeight;
+                ContentTable.MaxTableHeight = this.MaxTableHeight;
             }
             else if (change.Property == DefaultRowHeightProperty || change.Property == DefaultColumnWidthProperty)
             {
-                this.FindControl<HorizontalHeader>("HorizontalHeaderControl").InvalidateVisual();
-                this.FindControl<VerticalHeader>("VerticalHeaderControl").InvalidateVisual();
+                HorizontalHeaderControl.InvalidateVisual();
+                VerticalHeaderControl.InvalidateVisual();
             }
             else if (change.Property == ShowColorPreviewProperty)
             {
-                this.FindControl<Table>("ContentTable").InvalidateVisual();
+                ContentTable.InvalidateVisual();
             }
         }
 
@@ -1063,15 +1045,15 @@ namespace Spreadalonia
         {
             base.OnTextInput(e);
 
-            if (this.Selection.Count > 0 && !string.IsNullOrEmpty(e.Text) && e.Text != "\u007f" && !this.FindControl<TextBox>("EditingBox").IsFocused)
+            if (this.Selection.Count > 0 && !string.IsNullOrEmpty(e.Text) && e.Text != "\u007f" && !EditingBox.IsFocused)
             {
                 SelectionRange startSelection = this.Selection[this.Selection.Count - 1];
                 this.Selection = ImmutableList.Create(new SelectionRange(startSelection.Left, startSelection.Top));
                 this.EditingCell = (startSelection.Left, startSelection.Top);
-                this.IsEditing = true;
-                this.FindControl<TextBox>("EditingBox").Text = e.Text;
-                this.FindControl<TextBox>("EditingBox").SelectionStart = e.Text.Length;
-                this.FindControl<TextBox>("EditingBox").SelectionEnd = e.Text.Length;
+                IsEditing = true;
+                EditingBox.Text = e.Text;
+                EditingBox.SelectionStart = e.Text.Length;
+                EditingBox.SelectionEnd = e.Text.Length;
             }
         }
 
@@ -1082,7 +1064,7 @@ namespace Spreadalonia
         /// <returns>A text representation of the selected cells.</returns>
         public string GetTextRepresentation(IReadOnlyList<SelectionRange> selection)
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             Dictionary<(int, int), string> data = table.Data;
 
@@ -1268,7 +1250,7 @@ namespace Spreadalonia
         {
             IReadOnlyList<SelectionRange> selection = this.Selection;
 
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             Dictionary<(int, int), string> data = table.Data;
 
@@ -1423,13 +1405,13 @@ namespace Spreadalonia
             if (this.Selection.Count > 0)
             {
                 string txt = this.GetTextRepresentation(this.Selection);
-                _ = Application.Current.Clipboard.SetTextAsync(txt);
-                this.FindControl<Overlay>("IconOverlay").Selection = this.Selection.RemoveDuplicates().ToImmutableList();
-                this.FindControl<Overlay>("IconOverlay").Icon = Overlay.IconType.Copy;
-                this.FindControl<Overlay>("IconOverlay").PauseTransitions();
-                this.FindControl<Overlay>("IconOverlay").Opacity = 1;
-                this.FindControl<Overlay>("IconOverlay").ResumeTransitions();
-                this.FindControl<Overlay>("IconOverlay").Opacity = 0;
+                _ = TopLevel.GetTopLevel(this)?.Clipboard.SetTextAsync(txt);
+                IconOverlay.Selection = this.Selection.RemoveDuplicates().ToImmutableList();
+                IconOverlay.Icon = Overlay.IconType.Copy;
+                IconOverlay.PauseTransitions();
+                IconOverlay.Opacity = 1;
+                IconOverlay.ResumeTransitions();
+                IconOverlay.Opacity = 0;
             }
         }
 
@@ -1441,7 +1423,7 @@ namespace Spreadalonia
             if (this.Selection.Count > 0)
             {
                 Copy();
-                this.FindControl<Overlay>("IconOverlay").Icon = Overlay.IconType.Cut;
+                IconOverlay.Icon = Overlay.IconType.Cut;
                 ClearContents();
             }
         }
@@ -1453,11 +1435,11 @@ namespace Spreadalonia
         {
             if (this.Selection.Count > 0)
             {
-                this.FindControl<Table>("ContentTable").Data = this.FindControl<Table>("ContentTable").Data.Remove(this.Selection, this.UndoStack);
+                ContentTable.Data = ContentTable.Data.Remove(this.Selection, this.UndoStack);
                 PushNonDataStackNull();
                 this.ClearRedoStack();
 
-                this.FindControl<Table>("ContentTable").InvalidateVisual();
+                ContentTable.InvalidateVisual();
             }
         }
 
@@ -1470,7 +1452,7 @@ namespace Spreadalonia
         {
             if (this.Selection.Count == 1)
             {
-                string text = await Application.Current.Clipboard.GetTextAsync();
+                string text = await TopLevel.GetTopLevel(this)?.Clipboard.GetTextAsync();
 
                 Paste(text, overwriteEmpty);
             }
@@ -1502,7 +1484,7 @@ namespace Spreadalonia
                     string[][] cells = SplitData(text, rowSeparator, columnSeparator, QuoteSymbol, out int width);
                     int height = cells.Length;
 
-                    Table table = this.FindControl<Table>("ContentTable");
+                    Table table = ContentTable;
                     Dictionary<(int, int), string> data = table.Data;
 
                     SelectionRange selection = this.Selection[0];
@@ -1606,12 +1588,12 @@ namespace Spreadalonia
                         this.Selection = ImmutableList.Create(selection);
                     }
 
-                    this.FindControl<Overlay>("IconOverlay").Selection = this.Selection;
-                    this.FindControl<Overlay>("IconOverlay").Icon = Overlay.IconType.Paste;
-                    this.FindControl<Overlay>("IconOverlay").PauseTransitions();
-                    this.FindControl<Overlay>("IconOverlay").Opacity = 1;
-                    this.FindControl<Overlay>("IconOverlay").ResumeTransitions();
-                    this.FindControl<Overlay>("IconOverlay").Opacity = 0;
+                    IconOverlay.Selection = this.Selection;
+                    IconOverlay.Icon = Overlay.IconType.Paste;
+                    IconOverlay.PauseTransitions();
+                    IconOverlay.Opacity = 1;
+                    IconOverlay.ResumeTransitions();
+                    IconOverlay.Opacity = 0;
                 }
             }
         }
@@ -1625,7 +1607,7 @@ namespace Spreadalonia
         {
             if (!scrollBarXBusy && !scrollBarYBusy)
             {
-                Table table = this.FindControl<Table>("ContentTable");
+                Table table = ContentTable;
 
                 (int x, int y) bottomRight = table.Data.BottomRight();
 
@@ -1634,10 +1616,10 @@ namespace Spreadalonia
                 maxX = Math.Max(maxX, maxBounds.Right - table.Bounds.Width + 20);
                 maxY = Math.Max(maxY, maxBounds.Bottom - table.Bounds.Height);
 
-                this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum = maxX;
-                this.FindControl<ScrollBar>("HorizontalScrollBar").ViewportSize = table.Bounds.Width;
-                this.FindControl<ScrollBar>("VerticalScrollBar").Maximum = maxY;
-                this.FindControl<ScrollBar>("VerticalScrollBar").ViewportSize = table.Bounds.Height;
+                //HorizontalScrollBar.Maximum = maxX;
+                HorizontalScrollBar.ViewportSize = table.Bounds.Width;
+                //VerticalScrollBar.Maximum = maxY;
+                VerticalScrollBar.ViewportSize = table.Bounds.Height;
             }
             else
             {
@@ -1652,7 +1634,7 @@ namespace Spreadalonia
         {
             if (this.UndoStack != null && this.UndoStack.Count > 0)
             {
-                Table table = this.FindControl<Table>("ContentTable");
+                Table table = ContentTable;
 
                 ImmutableList<SelectionRange> selection = null;
 
@@ -1675,8 +1657,8 @@ namespace Spreadalonia
                 }
 
                 table.InvalidateVisual();
-                this.FindControl<HorizontalHeader>("HorizontalHeaderControl").InvalidateVisual();
-                this.FindControl<VerticalHeader>("VerticalHeaderControl").InvalidateVisual();
+                HorizontalHeaderControl.InvalidateVisual();
+                VerticalHeaderControl.InvalidateVisual();
             }
 
             this.CanUndo = this.UndoStack.Count > 0;
@@ -1690,7 +1672,7 @@ namespace Spreadalonia
         {
             if (this.RedoStack.Count > 0)
             {
-                Table table = this.FindControl<Table>("ContentTable");
+                Table table = ContentTable;
 
                 ImmutableList<SelectionRange> selection = null;
 
@@ -1713,8 +1695,8 @@ namespace Spreadalonia
                 }
 
                 table.InvalidateVisual();
-                this.FindControl<HorizontalHeader>("HorizontalHeaderControl").InvalidateVisual();
-                this.FindControl<VerticalHeader>("VerticalHeaderControl").InvalidateVisual();
+                HorizontalHeaderControl.InvalidateVisual();
+                VerticalHeaderControl.InvalidateVisual();
             }
 
             this.CanUndo = this.UndoStack.Count > 0;
@@ -1787,7 +1769,7 @@ namespace Spreadalonia
         /// </summary>
         public void InsertColumns()
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (this.Selection.Count == 1 && this.Selection[0].IsColumns(table) && !this.Selection[0].IsRows(table))
             {
@@ -1810,8 +1792,8 @@ namespace Spreadalonia
                 ClearRedoStack();
 
                 table.InvalidateVisual();
-                this.FindControl<HorizontalHeader>("HorizontalHeaderControl").InvalidateVisual();
-                this.FindControl<VerticalHeader>("VerticalHeaderControl").InvalidateVisual();
+                HorizontalHeaderControl.InvalidateVisual();
+                VerticalHeaderControl.InvalidateVisual();
             }
         }
 
@@ -1820,7 +1802,7 @@ namespace Spreadalonia
         /// </summary>
         public void DeleteColumns()
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (this.Selection.Count == 1 && this.Selection[0].IsColumns(table) && !this.Selection[0].IsRows(table))
             {
@@ -1843,8 +1825,8 @@ namespace Spreadalonia
                 ClearRedoStack();
 
                 table.InvalidateVisual();
-                this.FindControl<HorizontalHeader>("HorizontalHeaderControl").InvalidateVisual();
-                this.FindControl<VerticalHeader>("VerticalHeaderControl").InvalidateVisual();
+                HorizontalHeaderControl.InvalidateVisual();
+                VerticalHeaderControl.InvalidateVisual();
             }
         }
 
@@ -1853,7 +1835,7 @@ namespace Spreadalonia
         /// </summary>
         public void InsertRows()
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (this.Selection.Count == 1 && !this.Selection[0].IsColumns(table) && this.Selection[0].IsRows(table))
             {
@@ -1876,8 +1858,8 @@ namespace Spreadalonia
                 ClearRedoStack();
 
                 table.InvalidateVisual();
-                this.FindControl<HorizontalHeader>("HorizontalHeaderControl").InvalidateVisual();
-                this.FindControl<VerticalHeader>("VerticalHeaderControl").InvalidateVisual();
+                HorizontalHeaderControl.InvalidateVisual();
+                VerticalHeaderControl.InvalidateVisual();
             }
         }
 
@@ -1886,7 +1868,7 @@ namespace Spreadalonia
         /// </summary>
         public void DeleteRows()
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (this.Selection.Count == 1 && !this.Selection[0].IsColumns(table) && this.Selection[0].IsRows(table))
             {
@@ -1909,8 +1891,8 @@ namespace Spreadalonia
                 ClearRedoStack();
 
                 table.InvalidateVisual();
-                this.FindControl<HorizontalHeader>("HorizontalHeaderControl").InvalidateVisual();
-                this.FindControl<VerticalHeader>("VerticalHeaderControl").InvalidateVisual();
+                HorizontalHeaderControl.InvalidateVisual();
+                VerticalHeaderControl.InvalidateVisual();
             }
         }
 
@@ -1921,7 +1903,7 @@ namespace Spreadalonia
         {
             if (this.Selection.Count > 0)
             {
-                Table table = this.FindControl<Table>("ContentTable");
+                Table table = ContentTable;
 
                 table.CellTypefaces = table.CellTypefaces.Remove(this.Selection, this.UndoStackCellTypeface);
                 table.CellForeground = table.CellForeground.Remove(this.Selection, this.UndoStackCellForeground);
@@ -1981,8 +1963,8 @@ namespace Spreadalonia
                 }
 
                 table.InvalidateVisual();
-                this.FindControl<HorizontalHeader>("HorizontalHeaderControl").InvalidateVisual();
-                this.FindControl<VerticalHeader>("VerticalHeaderControl").InvalidateVisual();
+                HorizontalHeaderControl.InvalidateVisual();
+                VerticalHeaderControl.InvalidateVisual();
             }
         }
 
@@ -1991,11 +1973,11 @@ namespace Spreadalonia
         /// </summary>
         public void AutoFitWidth()
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (this.Selection.Count > 0 && this.Selection.All(x => x.IsColumns(table) && !x.IsRows(table)))
             {
-                HorizontalHeader horizontalHeader = this.FindControl<HorizontalHeader>("HorizontalHeaderControl");
+                HorizontalHeader horizontalHeader = HorizontalHeaderControl;
 
                 Dictionary<int, Reference<double>> previousWidths = new Dictionary<int, Reference<double>>();
                 Dictionary<int, Reference<double>> newWidths = new Dictionary<int, Reference<double>>();
@@ -2057,11 +2039,11 @@ namespace Spreadalonia
         /// </summary>
         public void AutoFitHeight()
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (this.Selection.Count > 0 && this.Selection.All(x => !x.IsColumns(table) && x.IsRows(table)))
             {
-                VerticalHeader verticalHeader = this.FindControl<VerticalHeader>("VerticalHeaderControl");
+                VerticalHeader verticalHeader = VerticalHeaderControl;
 
                 Dictionary<int, Reference<double>> previousHeights = new Dictionary<int, Reference<double>>();
                 Dictionary<int, Reference<double>> newHeights = new Dictionary<int, Reference<double>>();
@@ -2123,11 +2105,11 @@ namespace Spreadalonia
         /// </summary>
         public void ResetWidth()
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (this.Selection.Count > 0 && this.Selection.Any(x => x.IsRows(table) && x.IsColumns(table)))
             {
-                HorizontalHeader horizontalHeader = this.FindControl<HorizontalHeader>("HorizontalHeaderControl");
+                HorizontalHeader horizontalHeader = HorizontalHeaderControl;
 
                 Dictionary<int, Reference<double>> previousWidths = new Dictionary<int, Reference<double>>();
                 Dictionary<int, Reference<double>> newWidths = new Dictionary<int, Reference<double>>();
@@ -2170,7 +2152,7 @@ namespace Spreadalonia
             }
             else if (this.Selection.Count > 0 && this.Selection.All(x => x.IsColumns(table) && !x.IsRows(table)))
             {
-                HorizontalHeader horizontalHeader = this.FindControl<HorizontalHeader>("HorizontalHeaderControl");
+                HorizontalHeader horizontalHeader = HorizontalHeaderControl;
 
                 Dictionary<int, Reference<double>> previousWidths = new Dictionary<int, Reference<double>>();
                 Dictionary<int, Reference<double>> newWidths = new Dictionary<int, Reference<double>>();
@@ -2232,11 +2214,11 @@ namespace Spreadalonia
         /// </summary>
         public void ResetHeight()
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (this.Selection.Count > 0 && this.Selection.Any(x => x.IsColumns(table) && x.IsRows(table)))
             {
-                VerticalHeader verticalHeader = this.FindControl<VerticalHeader>("VerticalHeaderControl");
+                VerticalHeader verticalHeader = VerticalHeaderControl;
 
                 Dictionary<int, Reference<double>> previousHeights = new Dictionary<int, Reference<double>>();
                 Dictionary<int, Reference<double>> newHeights = new Dictionary<int, Reference<double>>();
@@ -2279,7 +2261,7 @@ namespace Spreadalonia
             }
             else if (this.Selection.Count > 0 && this.Selection.All(x => !x.IsColumns(table) && x.IsRows(table)))
             {
-                VerticalHeader verticalHeader = this.FindControl<VerticalHeader>("VerticalHeaderControl");
+                VerticalHeader verticalHeader = VerticalHeaderControl;
 
                 Dictionary<int, Reference<double>> previousHeights = new Dictionary<int, Reference<double>>();
                 Dictionary<int, Reference<double>> newHeights = new Dictionary<int, Reference<double>>();
@@ -2342,8 +2324,8 @@ namespace Spreadalonia
         /// <param name="columnWidths">The column widths to set.</param>
         public void SetWidth(Dictionary<int, double> columnWidths)
         {
-            Table table = this.FindControl<Table>("ContentTable");
-            HorizontalHeader horizontalHeader = this.FindControl<HorizontalHeader>("HorizontalHeaderControl");
+            Table table = ContentTable;
+            HorizontalHeader horizontalHeader = HorizontalHeaderControl;
 
             Dictionary<int, Reference<double>> previousWidths = new Dictionary<int, Reference<double>>();
             Dictionary<int, Reference<double>> newWidths = new Dictionary<int, Reference<double>>();
@@ -2402,9 +2384,9 @@ namespace Spreadalonia
         /// <param name="rowHeights">The row heights to set.</param>
         public void SetHeight(Dictionary<int, double> rowHeights)
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
-            VerticalHeader verticalHeader = this.FindControl<VerticalHeader>("VerticalHeaderControl");
+            VerticalHeader verticalHeader = VerticalHeaderControl;
 
             Dictionary<int, Reference<double>> previousHeights = new Dictionary<int, Reference<double>>();
             Dictionary<int, Reference<double>> newHeights = new Dictionary<int, Reference<double>>();
@@ -2465,7 +2447,7 @@ namespace Spreadalonia
         {
             if (this.Selection.Count > 0)
             {
-                Table table = this.FindControl<Table>("ContentTable");
+                Table table = ContentTable;
 
                 bool anyRows = false;
                 bool anyColumns = false;
@@ -2555,7 +2537,7 @@ namespace Spreadalonia
         {
             if (this.Selection.Count > 0)
             {
-                Table table = this.FindControl<Table>("ContentTable");
+                Table table = ContentTable;
 
                 bool anyRows = false;
                 bool anyColumns = false;
@@ -2645,7 +2627,7 @@ namespace Spreadalonia
         /// <returns>The typeface associated to the specified cell.</returns>
         public Typeface GetTypeface(int left, int top)
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (!(table.CellTypefaces.TryGetValue((left, top), out Typeface tbr) || table.RowTypefaces.TryGetValue(top, out tbr) || table.ColumnTypefaces.TryGetValue(left, out tbr)))
             {
@@ -2663,7 +2645,7 @@ namespace Spreadalonia
         /// <returns>The column width and row height of the specified cell.</returns>
         public (double width, double height) GetCellSize(int left, int top)
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (!table.ColumnWidths.TryGetValue(left, out double width))
             {
@@ -2686,7 +2668,7 @@ namespace Spreadalonia
         /// <returns>The the text alignment associated to the specified cell.</returns>
         public (TextAlignment, VerticalAlignment) GetAlignment(int left, int top)
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             if (!table.CellTextAlignment.TryGetValue((left, top), out TextAlignment tbrHor))
             {
@@ -2709,7 +2691,7 @@ namespace Spreadalonia
         {
             if (this.Selection.Count > 0)
             {
-                Table table = this.FindControl<Table>("ContentTable");
+                Table table = ContentTable;
 
                 bool anyAll = false;
 
@@ -2792,7 +2774,7 @@ namespace Spreadalonia
                 this.ClearRedoStack();
             }
 
-            this.FindControl<Table>("ContentTable").InvalidateVisual();
+            ContentTable.InvalidateVisual();
         }
 
 
@@ -2804,7 +2786,7 @@ namespace Spreadalonia
         {
             if (this.Selection.Count > 0)
             {
-                Table table = this.FindControl<Table>("ContentTable");
+                Table table = ContentTable;
 
                 bool anyAll = false;
 
@@ -2855,7 +2837,7 @@ namespace Spreadalonia
         {
             base.OnKeyDown(e);
 
-            if (!e.Handled && !this.FindControl<TextBox>("EditingBox").IsFocused)
+            if (!e.Handled && !EditingBox.IsFocused)
             {
                 if (this.Selection.Count > 0)
                 {
@@ -2869,21 +2851,21 @@ namespace Spreadalonia
                         }
                         else if (e.KeyModifiers == KeyModifiers.Shift)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsColumns(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsColumns(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, startSelection.Top, startSelection.Right, startSelection.Bottom + 1));
                             }
                         }
                         else if (e.KeyModifiers == KeyModifiers.Alt)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsColumns(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsColumns(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, Math.Min(startSelection.Bottom, startSelection.Top + 1), startSelection.Right, startSelection.Bottom));
                             }
                         }
                         else if (e.KeyModifiers.HasFlag(Spreadsheet.ControlModifier))
                         {
-                            int target = this.FindControl<Table>("ContentTable").Data.GetBoundaryDown(startSelection.Left, startSelection.Right, startSelection.Bottom);
+                            int target = ContentTable.Data.GetBoundaryDown(startSelection.Left, startSelection.Right, startSelection.Bottom);
 
                             if (target >= 0)
                             {
@@ -2908,21 +2890,21 @@ namespace Spreadalonia
                         }
                         else if (e.KeyModifiers == KeyModifiers.Shift)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsColumns(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsColumns(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, Math.Max(0, startSelection.Top - 1), startSelection.Right, startSelection.Bottom));
                             }
                         }
                         else if (e.KeyModifiers == KeyModifiers.Alt)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsColumns(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsColumns(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, startSelection.Top, startSelection.Right, Math.Max(startSelection.Top, startSelection.Bottom - 1)));
                             }
                         }
                         else if (e.KeyModifiers.HasFlag(Spreadsheet.ControlModifier))
                         {
-                            int target = this.FindControl<Table>("ContentTable").Data.GetBoundaryUp(startSelection.Left, startSelection.Right, startSelection.Top);
+                            int target = ContentTable.Data.GetBoundaryUp(startSelection.Left, startSelection.Right, startSelection.Top);
 
                             if (target >= 0)
                             {
@@ -2947,21 +2929,21 @@ namespace Spreadalonia
                         }
                         else if (e.KeyModifiers == KeyModifiers.Shift)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsRows(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsRows(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, startSelection.Top, startSelection.Right + 1, startSelection.Bottom));
                             }
                         }
                         else if (e.KeyModifiers == KeyModifiers.Alt)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsRows(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsRows(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(Math.Min(startSelection.Right, startSelection.Left + 1), startSelection.Top, startSelection.Right, startSelection.Bottom));
                             }
                         }
                         else if (e.KeyModifiers.HasFlag(Spreadsheet.ControlModifier))
                         {
-                            int target = this.FindControl<Table>("ContentTable").Data.GetBoundaryRight(startSelection.Right, startSelection.Top, startSelection.Bottom);
+                            int target = ContentTable.Data.GetBoundaryRight(startSelection.Right, startSelection.Top, startSelection.Bottom);
 
                             if (target >= 0)
                             {
@@ -2986,21 +2968,21 @@ namespace Spreadalonia
                         }
                         else if (e.KeyModifiers == KeyModifiers.Shift)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsRows(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsRows(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(Math.Max(0, startSelection.Left - 1), startSelection.Top, startSelection.Right, startSelection.Bottom));
                             }
                         }
                         else if (e.KeyModifiers == KeyModifiers.Alt)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsRows(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsRows(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, startSelection.Top, Math.Max(startSelection.Left, startSelection.Right - 1), startSelection.Bottom));
                             }
                         }
                         else if (e.KeyModifiers.HasFlag(Spreadsheet.ControlModifier))
                         {
-                            int target = this.FindControl<Table>("ContentTable").Data.GetBoundaryLeft(startSelection.Left, startSelection.Top, startSelection.Bottom);
+                            int target = ContentTable.Data.GetBoundaryLeft(startSelection.Left, startSelection.Top, startSelection.Bottom);
 
                             if (target >= 0)
                             {
@@ -3040,7 +3022,7 @@ namespace Spreadalonia
                         {
                             this.Selection = ImmutableList.Create(new SelectionRange(startSelection.Left, startSelection.Top));
                             this.EditingCell = (startSelection.Left, startSelection.Top);
-                            this.IsEditing = true;
+                            IsEditing = true;
 
                             e.Handled = true;
                         }
@@ -3064,8 +3046,8 @@ namespace Spreadalonia
                         {
                             this.Selection = ImmutableList.Create(new SelectionRange(startSelection.Left, startSelection.Top));
                             this.EditingCell = (startSelection.Left, startSelection.Top);
-                            this.IsEditing = true;
-                            this.FindControl<TextBox>("EditingBox").Text = "";
+                            IsEditing = true;
+                            EditingBox.Text = "";
 
                             e.Handled = true;
                         }
@@ -3103,31 +3085,31 @@ namespace Spreadalonia
                     {
                         if (e.KeyModifiers == KeyModifiers.None)
                         {
-                            int right = this.FindControl<Table>("ContentTable").Data.GetRight(startSelection.Top, startSelection.Top);
+                            int right = ContentTable.Data.GetRight(startSelection.Top, startSelection.Top);
                             this.Selection = ImmutableList.Create(new SelectionRange(right, startSelection.Top));
                         }
                         else if (e.KeyModifiers == KeyModifiers.Shift)
                         {
-                            int right = this.FindControl<Table>("ContentTable").Data.GetRight(startSelection.Top, startSelection.Bottom);
+                            int right = ContentTable.Data.GetRight(startSelection.Top, startSelection.Bottom);
                             this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, startSelection.Top, right, startSelection.Bottom));
                         }
                         else if (e.KeyModifiers == KeyModifiers.Alt)
                         {
-                            int bottom = this.FindControl<Table>("ContentTable").Data.GetBottom(startSelection.Left, startSelection.Left);
+                            int bottom = ContentTable.Data.GetBottom(startSelection.Left, startSelection.Left);
                             this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, bottom));
                         }
                         else if (e.KeyModifiers == (KeyModifiers.Alt | KeyModifiers.Shift))
                         {
-                            int bottom = this.FindControl<Table>("ContentTable").Data.GetBottom(startSelection.Left, startSelection.Right);
+                            int bottom = ContentTable.Data.GetBottom(startSelection.Left, startSelection.Right);
                             this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, startSelection.Top, startSelection.Right, bottom));
                         }
                         else if (e.KeyModifiers == Spreadsheet.ControlModifier)
                         {
-                            this.Selection = ImmutableList.Create(new SelectionRange(this.FindControl<Table>("ContentTable").Data.BottomRight()));
+                            this.Selection = ImmutableList.Create(new SelectionRange(ContentTable.Data.BottomRight()));
                         }
                         else if (e.KeyModifiers == (Spreadsheet.ControlModifier | KeyModifiers.Shift))
                         {
-                            (int, int) bottomRight = this.FindControl<Table>("ContentTable").Data.BottomRight();
+                            (int, int) bottomRight = ContentTable.Data.BottomRight();
 
                             this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, startSelection.Top, bottomRight.Item1, bottomRight.Item2));
                         }
@@ -3136,7 +3118,7 @@ namespace Spreadalonia
                     }
                     else if (e.Key == Key.A && e.KeyModifiers == Spreadsheet.ControlModifier)
                     {
-                        this.Selection = ImmutableList.Create(this.FindControl<Table>("ContentTable").Data.SelectAll(this.FindControl<Table>("ContentTable")));
+                        this.Selection = ImmutableList.Create(ContentTable.Data.SelectAll(ContentTable));
                         e.Handled = true;
                     }
                     else if ((e.Key == Key.C && e.KeyModifiers == Spreadsheet.ControlModifier) || (e.Key == Key.Insert && e.KeyModifiers == Spreadsheet.ControlModifier))
@@ -3184,7 +3166,7 @@ namespace Spreadalonia
                     }
                     else if (e.Key == Key.PageDown)
                     {
-                        int pageSize = Math.Max(1, this.FindControl<Table>("ContentTable").lastDrawnHeight - 2);
+                        int pageSize = Math.Max(1, ContentTable.lastDrawnHeight - 2);
 
                         if (e.KeyModifiers == KeyModifiers.None)
                         {
@@ -3192,21 +3174,21 @@ namespace Spreadalonia
                         }
                         else if (e.KeyModifiers == KeyModifiers.Shift)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsColumns(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsColumns(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, startSelection.Top, startSelection.Right, startSelection.Bottom + pageSize));
                             }
                         }
                         else if (e.KeyModifiers == KeyModifiers.Alt)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsColumns(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsColumns(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, Math.Min(startSelection.Bottom, startSelection.Top + pageSize), startSelection.Right, startSelection.Bottom));
                             }
                         }
                         else if (e.KeyModifiers.HasFlag(Spreadsheet.ControlModifier))
                         {
-                            int target = this.FindControl<Table>("ContentTable").Data.GetBoundaryDown(startSelection.Left, startSelection.Right, startSelection.Bottom);
+                            int target = ContentTable.Data.GetBoundaryDown(startSelection.Left, startSelection.Right, startSelection.Bottom);
 
                             if (target >= 0)
                             {
@@ -3225,7 +3207,7 @@ namespace Spreadalonia
                     }
                     else if (e.Key == Key.PageUp)
                     {
-                        int pageSize = Math.Max(1, this.FindControl<Table>("ContentTable").lastDrawnHeight - 2);
+                        int pageSize = Math.Max(1, ContentTable.lastDrawnHeight - 2);
 
                         if (e.KeyModifiers == KeyModifiers.None)
                         {
@@ -3233,21 +3215,21 @@ namespace Spreadalonia
                         }
                         else if (e.KeyModifiers == KeyModifiers.Shift)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsColumns(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsColumns(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, Math.Max(0, startSelection.Top - pageSize), startSelection.Right, startSelection.Bottom));
                             }
                         }
                         else if (e.KeyModifiers == KeyModifiers.Alt)
                         {
-                            if (!this.Selection[this.Selection.Count - 1].IsColumns(this.FindControl<Table>("ContentTable")))
+                            if (!this.Selection[this.Selection.Count - 1].IsColumns(ContentTable))
                             {
                                 this.Selection = this.Selection.SetItem(this.Selection.Count - 1, new SelectionRange(startSelection.Left, startSelection.Top, startSelection.Right, Math.Max(startSelection.Top, startSelection.Bottom - pageSize)));
                             }
                         }
                         else if (e.KeyModifiers.HasFlag(Spreadsheet.ControlModifier))
                         {
-                            int target = this.FindControl<Table>("ContentTable").Data.GetBoundaryUp(startSelection.Left, startSelection.Right, startSelection.Top);
+                            int target = ContentTable.Data.GetBoundaryUp(startSelection.Left, startSelection.Right, startSelection.Top);
 
                             if (target >= 0)
                             {
@@ -3267,7 +3249,7 @@ namespace Spreadalonia
                 }
                 else if (e.Key == Key.A && e.KeyModifiers == Spreadsheet.ControlModifier)
                 {
-                    this.Selection = ImmutableList.Create(this.FindControl<Table>("ContentTable").Data.SelectAll(this.FindControl<Table>("ContentTable")));
+                    this.Selection = ImmutableList.Create(ContentTable.Data.SelectAll(ContentTable));
                     e.Handled = true;
                 }
                 else if (e.Key == Key.Z && e.KeyModifiers == Spreadsheet.ControlModifier)
@@ -3288,13 +3270,13 @@ namespace Spreadalonia
         {
             base.OnPointerWheelChanged(e);
 
-            this.FindControl<ScrollBar>("VerticalScrollBar").Maximum = Math.Max(this.FindControl<ScrollBar>("VerticalScrollBar").Value - this.FindControl<ScrollBar>("VerticalScrollBar").LargeChange * e.Delta.Y, this.FindControl<ScrollBar>("VerticalScrollBar").Maximum);
-            this.FindControl<ScrollBar>("VerticalScrollBar").Value = this.FindControl<ScrollBar>("VerticalScrollBar").Value - this.FindControl<ScrollBar>("VerticalScrollBar").LargeChange * e.Delta.Y;
-            this.FindControl<ScrollBar>("VerticalScrollBar").ViewportSize = this.FindControl<Table>("ContentTable").Bounds.Height;
+            VerticalScrollBar.Maximum = Math.Max(VerticalScrollBar.Value - VerticalScrollBar.LargeChange * e.Delta.Y, VerticalScrollBar.Maximum);
+            VerticalScrollBar.Value = VerticalScrollBar.Value - VerticalScrollBar.LargeChange * e.Delta.Y;
+            VerticalScrollBar.ViewportSize = ContentTable.Bounds.Height;
 
-            this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum = Math.Max(this.FindControl<ScrollBar>("HorizontalScrollBar").Value - this.FindControl<ScrollBar>("HorizontalScrollBar").LargeChange * e.Delta.X, this.FindControl<ScrollBar>("HorizontalScrollBar").Maximum);
-            this.FindControl<ScrollBar>("HorizontalScrollBar").Value = this.FindControl<ScrollBar>("HorizontalScrollBar").Value - this.FindControl<ScrollBar>("HorizontalScrollBar").LargeChange * e.Delta.X;
-            this.FindControl<ScrollBar>("HorizontalScrollBar").ViewportSize = this.FindControl<Table>("ContentTable").Bounds.Width;
+            HorizontalScrollBar.Maximum = Math.Max(HorizontalScrollBar.Value - HorizontalScrollBar.LargeChange * e.Delta.X, HorizontalScrollBar.Maximum);
+            HorizontalScrollBar.Value = HorizontalScrollBar.Value - HorizontalScrollBar.LargeChange * e.Delta.X;
+            HorizontalScrollBar.ViewportSize = ContentTable.Bounds.Width;
         }
 
         /// <summary>
@@ -3303,7 +3285,7 @@ namespace Spreadalonia
         /// <returns>A string representation of all the data currently present in the spreadsheet.</returns>
         public string SerializeData()
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             (int x, int y) bottomRight = table.Data.BottomRight();
 
@@ -3316,7 +3298,7 @@ namespace Spreadalonia
         /// <returns>A string representation of all the formatting information currently present in the spreadsheet.</returns>
         public string SerializeFormat()
         {
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             string colSep = new Xeger(Regex.Unescape(this.ColumnSeparator.ToString()), new Random(20230926)).Generate();
             string rowSep = new Xeger(Regex.Unescape(this.RowSeparator.ToString()), new Random(20230926)).Generate();
@@ -3770,7 +3752,7 @@ namespace Spreadalonia
         {
             string[][] splittedFormat = SplitData(serializedFormat, this.RowSeparator, this.ColumnSeparator, this.QuoteSymbol, out int width);
 
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
 
             for (int i = 0; i < splittedFormat.Length; i++)
             {
@@ -4001,7 +3983,7 @@ namespace Spreadalonia
         public void Load(string serializedData, string serializedFormat)
         {
             string[][] splittedData = SplitData(serializedData, this.RowSeparator, this.ColumnSeparator, this.QuoteSymbol, out int width);
-            Table table = this.FindControl<Table>("ContentTable");
+            Table table = ContentTable;
             table.Data.Clear();
             table.CellForeground.Clear();
             table.CellMargin.Clear();
@@ -4031,9 +4013,9 @@ namespace Spreadalonia
             this.ClearUndoStack();
 
             table.InvalidateVisual();
-            this.FindControl<HorizontalHeader>("HorizontalHeaderControl").InvalidateVisual();
-            this.FindControl<VerticalHeader>("VerticalHeaderControl").InvalidateMeasure();
-            this.FindControl<VerticalHeader>("VerticalHeaderControl").InvalidateVisual();
+            HorizontalHeaderControl.InvalidateVisual();
+            VerticalHeaderControl.InvalidateMeasure();
+            VerticalHeaderControl.InvalidateVisual();
             this.InvalidateVisual();
             this.Selection = ImmutableList.Create(new SelectionRange(0, 0));
         }
@@ -4043,8 +4025,8 @@ namespace Spreadalonia
         /// </summary>
         public void ScrollTopLeft()
         {
-            this.FindControl<ScrollBar>("HorizontalScrollBar").Value = 0;
-            this.FindControl<ScrollBar>("VerticalScrollBar").Value = 0;
+            HorizontalScrollBar.Value = 0;
+            VerticalScrollBar.Value = 0;
         }
 
         /// <summary>
