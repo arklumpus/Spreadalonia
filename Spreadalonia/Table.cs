@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
+using Avalonia.Interactivity;
 
 namespace Spreadalonia
 {
@@ -1217,13 +1218,21 @@ namespace Spreadalonia
         internal double lastDrawnDeltaX = 0;
         internal double lastDrawnDeltaY = 0;
 
+        protected override void OnLoaded(RoutedEventArgs e)
+        {
+            (int left, _, int top, _, int width, double actualWidth, double startWidth, int height, double actualHeight, double startHeight) = GetRange(Offset.X, this.Offset.Y, this.Bounds.Width, this.Bounds.Height);
+            Container.SetScrollbarMaximum(actualWidth + startWidth - this.Bounds.Width + GetWidth(left + width), actualHeight + startHeight - this.Bounds.Height + GetHeight(top + height));
+
+            base.OnLoaded(e);
+        }
+
         public override void Render(DrawingContext context)
         {
             context.FillRectangle(this.Background, new Rect(0, 0, this.Bounds.Width, this.Bounds.Height));
 
             using (context.PushPreTransform(Matrix.CreateTranslation(-1, -1)))
             {
-                (int left, double offsetX, int top, double offsetY, int width, double actualWidth, double startWidth, int height, double actualHeight, double startHeight) = GetRange(this.Offset.X, this.Offset.Y, this.Bounds.Width, this.Bounds.Height);
+                (int left, double offsetX, int top, double offsetY, int width, double actualWidth, _, int height, double actualHeight, _) = GetRange(this.Offset.X, this.Offset.Y, this.Bounds.Width, this.Bounds.Height);
 
                 lastDrawnDeltaX = offsetX;
                 lastDrawnDeltaY = offsetY;
@@ -1685,7 +1694,6 @@ namespace Spreadalonia
                         }
                     }
                 }
-                this.Container.SetScrollbarMaximum(actualWidth + startWidth - this.Bounds.Width + GetWidth(left + width), actualHeight + startHeight - this.Bounds.Height + GetHeight(top + height));
             }
         }
     }

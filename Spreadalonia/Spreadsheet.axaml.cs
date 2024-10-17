@@ -1616,9 +1616,9 @@ namespace Spreadalonia
                 maxX = Math.Max(maxX, maxBounds.Right - table.Bounds.Width + 20);
                 maxY = Math.Max(maxY, maxBounds.Bottom - table.Bounds.Height);
 
-                //HorizontalScrollBar.Maximum = maxX;
+                HorizontalScrollBar.Maximum = maxX;
                 HorizontalScrollBar.ViewportSize = table.Bounds.Width;
-                //VerticalScrollBar.Maximum = maxY;
+                VerticalScrollBar.Maximum = maxY;
                 VerticalScrollBar.ViewportSize = table.Bounds.Height;
             }
             else
