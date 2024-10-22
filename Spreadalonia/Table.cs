@@ -1230,7 +1230,7 @@ namespace Spreadalonia
         {
             context.FillRectangle(this.Background, new Rect(0, 0, this.Bounds.Width, this.Bounds.Height));
 
-            using (context.PushPreTransform(Matrix.CreateTranslation(-1, -1)))
+            using (context.PushTransform(Matrix.CreateTranslation(-1, -1)))
             {
                 (int left, double offsetX, int top, double offsetY, int width, double actualWidth, double startWidth, int height, double actualHeight, double startHeight) = GetRange(this.Offset.X, this.Offset.Y, this.Bounds.Width, this.Bounds.Height);
 
@@ -1253,7 +1253,7 @@ namespace Spreadalonia
 
                 Typeface defaultTypeFace = new Typeface(this.FontFamily, this.FontStyle, this.FontWeight);
 
-                using (context.PushPreTransform(Matrix.CreateTranslation(offsetX, offsetY)))
+                using (context.PushTransform(Matrix.CreateTranslation(offsetX, offsetY)))
                 {
                     double[] xs = new double[width + 1];
                     double[] ys = new double[height + 1];

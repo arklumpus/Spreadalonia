@@ -110,11 +110,11 @@ namespace Spreadalonia
             {
                 Brush overlayBrush = new SolidColorBrush(SelectionAccent.Color, 0.25);
 
-                using (context.PushPreTransform(Matrix.CreateTranslation(-1, -1)))
+                using (context.PushTransform(Matrix.CreateTranslation(-1, -1)))
                 {
                     (int left, double offsetX, int top, double offsetY, int width, double actualWidth, double startWidth, int height, double actualHeight, double startHeight) = Owner.GetRange(this.Offset.X, this.Offset.Y, this.Bounds.Width, this.Bounds.Height);
 
-                    using (context.PushPreTransform(Matrix.CreateTranslation(offsetX, offsetY)))
+                    using (context.PushTransform(Matrix.CreateTranslation(offsetX, offsetY)))
                     {
                         double[] xs = Owner.lastDrawnXs;
                         double[] ys = Owner.lastDrawnYs;

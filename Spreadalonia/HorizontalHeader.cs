@@ -670,7 +670,7 @@ namespace Spreadalonia
 
             Typeface typeFace = new Typeface(this.FontFamily, this.FontStyle, this.FontWeight);
 
-            using (context.PushPreTransform(Matrix.CreateTranslation(offsetX, 0)))
+            using (context.PushTransform(Matrix.CreateTranslation(offsetX, 0)))
             {
                 double[] xs = new double[width + 1];
                 int[] selected = new int[width + 1];
