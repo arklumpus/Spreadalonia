@@ -1232,7 +1232,7 @@ namespace Spreadalonia
 
             using (context.PushPreTransform(Matrix.CreateTranslation(-1, -1)))
             {
-                (int left, double offsetX, int top, double offsetY, int width, double actualWidth, _, int height, double actualHeight, _) = GetRange(this.Offset.X, this.Offset.Y, this.Bounds.Width, this.Bounds.Height);
+                (int left, double offsetX, int top, double offsetY, int width, double actualWidth, double startWidth, int height, double actualHeight, double startHeight) = GetRange(this.Offset.X, this.Offset.Y, this.Bounds.Width, this.Bounds.Height);
 
                 lastDrawnDeltaX = offsetX;
                 lastDrawnDeltaY = offsetY;
@@ -1694,6 +1694,11 @@ namespace Spreadalonia
                         }
                     }
                 }
+
+                _ = Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    this.Container.SetScrollbarMaximum(actualWidth + startWidth - this.Bounds.Width + GetWidth(left + width), actualHeight + startHeight - this.Bounds.Height + GetHeight(top + height));
+                });
             }
         }
     }
