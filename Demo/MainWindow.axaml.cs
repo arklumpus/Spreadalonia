@@ -3,13 +3,8 @@ using Avalonia.Markup.Xaml;
 
 namespace Demo
 {
-    public class MainWindow : Window
+    public partial class MainWindow : Window
     {
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         public MainWindow()
         {
             InitializeComponent();

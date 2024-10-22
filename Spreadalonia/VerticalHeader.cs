@@ -25,6 +25,7 @@ using Avalonia.Media;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 
 namespace Spreadalonia
 {
@@ -429,10 +430,10 @@ namespace Spreadalonia
                         margin = Owner.DefaultMargin;
                     }
 
-                    FormattedText fmtText = new FormattedText(kvp.Value, face, this.Container.FontSize, TextAlignment.Left, TextWrapping.NoWrap, new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    FormattedText fmtText = new FormattedText(kvp.Value, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, face, this.Container.FontSize, this.Foreground);
 
                     found = true;
-                    maxHeight = Math.Max(maxHeight, fmtText.Bounds.Height + margin.Top + margin.Bottom);
+                    maxHeight = Math.Max(maxHeight, fmtText.Height + margin.Top + margin.Bottom);
                 }
             }
 
@@ -519,10 +520,10 @@ namespace Spreadalonia
                         margin = Owner.DefaultMargin;
                     }
 
-                    FormattedText fmtText = new FormattedText(kvp.Value, face, this.Container.FontSize, TextAlignment.Left, TextWrapping.NoWrap, new Size(double.PositiveInfinity, double.PositiveInfinity));
+                    FormattedText fmtText = new FormattedText(kvp.Value, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, face, this.Container.FontSize, this.Foreground);
 
                     found = true;
-                    maxHeight = Math.Max(maxHeight, fmtText.Bounds.Height + margin.Top + margin.Bottom);
+                    maxHeight = Math.Max(maxHeight, fmtText.Height + margin.Top + margin.Bottom);
                 }
             }
 
@@ -561,11 +562,11 @@ namespace Spreadalonia
 
             string max = new string('9', (int)Math.Ceiling(Math.Log10(top + height)));
 
-            FormattedText fmt = new FormattedText(max, new Typeface(this.FontFamily), this.FontSize, TextAlignment.Left, TextWrapping.NoWrap, new Size(double.PositiveInfinity, double.PositiveInfinity));
+            FormattedText fmt = new FormattedText(max, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface(this.FontFamily), this.FontSize, this.Foreground);
 
             if (this.FontFamily != null)
             {
-                return new Size(fmt.Bounds.Width + 10, availableSize.Height);
+                return new Size(fmt.Width + 10, availableSize.Height);
             }
             else
             {
@@ -573,9 +574,9 @@ namespace Spreadalonia
             }
         }
 
-        protected override void OnPointerLeave(PointerEventArgs e)
+        protected override void OnPointerExited(PointerEventArgs e)
         {
-            base.OnPointerLeave(e);
+            base.OnPointerExited(e);
 
             if (hoverRow >= 0)
             {
@@ -678,21 +679,12 @@ namespace Spreadalonia
 
                     double realY = y == 0 ? 0 : ys[y - 1];
 
-                    FormattedText fmtText = new FormattedText(txt, typeFace, this.FontSize, TextAlignment.Left, TextWrapping.NoWrap, new Size(double.PositiveInfinity, ys[y] - realY - 6));
 
                     using (context.PushClip(new Rect(3, realY + 3, this.Bounds.Width, ys[y] - realY - 6)))
                     {
-                        double realX = (this.Bounds.Width - fmtText.Bounds.Width) * 0.5;
-
-                        if (selected[y] == 0)
-                        {
-                            context.DrawText(brs, new Point(realX, realY + (ys[y] - realY) * 0.5 - fmtText.Bounds.Height * 0.5), fmtText);
-                        }
-                        else
-                        {
-                            context.DrawText(SelectionAccent, new Point(realX, realY + (ys[y] - realY) * 0.5 - fmtText.Bounds.Height * 0.5), fmtText);
-                        }
-
+                        FormattedText fmtText = new FormattedText(txt, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeFace, this.FontSize, selected[y] == 0 ? brs : SelectionAccent);
+                        double realX = (this.Bounds.Width - fmtText.Width) * 0.5;
+                        context.DrawText(fmtText, new Point(realX, realY + (ys[y] - realY) * 0.5 - fmtText.Height * 0.5));
                     }
                 }
 
